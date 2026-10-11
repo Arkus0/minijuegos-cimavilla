@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Burbujas del Muelle</title>
+<style>body{margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:monospace;color:#fff}
+#cab{background:linear-gradient(#6a2a5a,#1a0a2a);border:10px solid #444;border-radius:20px 20px 0 0;padding:16px;text-align:center}
+#marq{background:#000;color:#6ff;font-size:28px;padding:8px;margin-bottom:10px;text-shadow:0 0 10px #0ff;letter-spacing:4px}
+canvas{background:#000;display:block;image-rendering:pixelated}#h{font-size:13px;margin-top:8px;color:#fbf}</style></head><body>
+<div id="cab"><div id="marq">BURBUJAS DEL MUELLE</div><canvas id="c" width="640" height="480"></canvas>
+<div id="h">M: moneda · 1/2: jugadores · J1: A/D mover, W saltar, F burbuja · J2: ←/→, ↑ saltar, L burbuja</div></div>
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d"),W=640,H=480,T=16;
+const LV=[[ "########################################","#......................................#","#......................................#","#....######....######....######........#","#......................................#","#......................................#","#..##########..........##########......#","#......................................#","#......................................#","#.......######....######....######.....#","#......................................#","#......................................#","#..##########..........##########......#","#......................................#","#......................................#","#......######....######....######......#","#......................................#","#......................................#","#..##########..........##########......#","#......................................#","#......................................#","#.........#####......#####.............#","#......................................#","#......................................#","#......................................#","#......................................#","#......................................#","#......................................#","#......................................#","########################################"]];
+let map=LV[0],keys={},cr=0,st="attract",t=0,lvl=1,P=[],E=[],B=[],F=[],acx;
+function beep(f,d=.05,ty="square"){acx=acx||new AudioContext();const o=acx.createOscillator(),g=acx.createGain();o.type=ty;o.frequency.value=f;g.gain.value=.06;o.connect(g).connect(acx.destination);o.start();o.stop(acx.currentTime+d)}
+const solid=(px,py)=>{const cx=px/T|0,cy=py/T|0;return cy<0||cy>=30||(map[cy]&&map[cy][cx]=="#")};
+const CTL=[{l:"a",r:"d",j:"w",f:"f"},{l:"ArrowLeft",r:"ArrowRight",j:"ArrowUp",f:"l"}];
+function mkP(i){return{x:i?560:64,y:440,vx:0,vy:0,dir:i?-1:1,w:20,h:20,col:i?"#4af":"#4f4",ctl:CTL[i],cd:0,lives:3,sc:0,inv:90,on:0}}
+function spawn(){E=[];const n=3+lvl;for(let i=0;i<n;i++)E.push({x:120+i*90%420,y:40+(i%3)*96,vx:(i%2?1:-1)*(1+lvl*.2),vy:0,w:20,h:20,trap:0,on:0,ang:0});B=[];F=[]}
+function start(n){if(cr<n)return;cr-=n;P=[mkP(0)];if(n==2)P.push(mkP(1));lvl=1;spawn();st="play";beep(880,.2)}
+onkeydown=e=>{const k=e.key.length==1?e.key.toLowerCase():e.key;keys[k]=1;if(k=="m"){cr++;beep(1500,.08)}if(st!="play"){if(k=="1")start(1);if(k=="2")start(2)}if(k.startsWith("Arrow")||k==" ")e.preventDefault()};
+onkeyup=e=>{keys[e.key.length==1?e.key.toLowerCase():e.key]=0};
+function phys(o,g=.5){o.vy=Math.min(o.vy+g,8);o.x+=o.vx;if(solid(o.x,o.y+o.h/2)||solid(o.x+o.w,o.y+o.h/2)){o.x-=o.vx;o.vx=-o.vx*(o.bounce?1:0)}
+o.on=0;if(o.vy>0){o.y+=o.vy;if(solid(o.x+2,o.y+o.h)||solid(o.x+o.w-2,o.y+o.h)){o.y=((o.y+o.h)/T|0)*T-o.h;o.vy=0;o.on=1}}else{o.y+=o.vy}
+if(o.y>H)o.y=-o.h;if(o.y<-o.h-4)o.y=H-40}
+const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+function step(){t++;if(st=="play"){for(const p of P){if(p.lives<=0)continue;const k=p.ctl;p.vx=(keys[k.r]?3:0)-(keys[k.l]?3:0);if(p.vx)p.dir=Math.sign(p.vx);
+if(keys[k.j]&&p.on){p.vy=-9.5;beep(500,.04)}phys(p);if(p.cd)p.cd--;if(p.inv)p.inv--;
+if(keys[k.f]&&!p.cd){B.push({x:p.x+p.dir*10,y:p.y,vx:p.dir*7,life:300,w:22,h:22,e:null,own:p});p.cd=18;beep(900,.03,"triangle")}}
+for(const b of B){if(Math.abs(b.vx)>.2){b.x+=b.vx;b.vx*=.9;if(b.x<T||b.x>W-T-b.w)b.vx=0}else{b.y-=.8;if(b.y<T*2)b.y=T*2;b.x+=Math.sin((t+b.life)/20)*.4}b.life--;
+if(!b.e&&Math.abs(b.vx)>1)for(const e of E)if(!e.trap&&hit(b,e)){e.trap=1;b.e=e;beep(1200,.06)}if(b.e){b.e.x=b.x;b.e.y=b.y}
+for(const p of P)if(p.lives>0&&hit(p,b)&&Math.abs(b.vx)<1){b.life=0;if(b.e){const e=b.e;E=E.filter(z=>z!=e);p.sc+=1000;F.push({x:e.x,y:e.y,vy:-6,f:["🍒","🍌","🍉","🍰","💎"][Math.random()*5|0],l:400});beep(200,.1);beep(1600,.15)}else beep(300,.02)}
+if(b.life<=0&&b.e){b.e.trap=0;b.e.vx=2*Math.sign(Math.random()-.5)*(1.5+lvl*.3)}}B=B.filter(b=>b.life>0);
+for(const e of E){if(e.trap)continue;phys(e);if(e.vx==0)e.vx=(Math.random()<.5?-1:1)*(1+lvl*.2);if(e.on&&Math.random()<.01)e.vy=-9;
+for(const p of P)if(p.lives>0&&!p.inv&&hit(p,e)){p.lives--;p.inv=120;p.x=p==P[0]?64:560;p.y=440;beep(120,.4,"sawtooth")}}
+for(const f of F){phys(f);f.l--;for(const p of P)if(p.lives>0&&hit(p,{x:f.x,y:f.y,w:20,h:20})){p.sc+=500;f.l=0;beep(1800,.05)}f.w=f.h=20}F=F.filter(f=>f.l>0);
+if(!E.length&&!B.some(b=>b.e)){lvl++;spawn();beep(660,.3)}if(P.every(p=>p.lives<=0)){st="over";t=0}
+if(t%16==0)beep([262,330,392,330,294,349,440,349][(t/16|0)%8],.08,"triangle")}draw();requestAnimationFrame(step)}
+function draw(){x.fillStyle="#000";x.fillRect(0,0,W,H);for(let y=0;y<30;y++)for(let i=0;i<40;i++)if(map[y][i]=="#"){x.fillStyle=(i+y)%2?"#c4a":"#a28";x.fillRect(i*T,y*T,T,T)}
+x.font="18px sans-serif";x.textBaseline="top";
+for(const f of F)x.fillText(f.f,f.x,f.y);
+for(const e of E){x.fillStyle=e.trap?"#f8f":"#f84";x.fillRect(e.x,e.y,e.w,e.h);x.fillStyle="#000";x.fillRect(e.x+5,e.y+5,3,3);x.fillRect(e.x+12,e.y+5,3,3)}
+for(const b of B){x.strokeStyle="#8ff";x.lineWidth=2;x.beginPath();x.arc(b.x+11,b.y+11,12,0,7);x.stroke()}
+for(const p of P){if(p.lives<=0||(p.inv&&t%6<3))continue;x.fillStyle=p.col;x.fillRect(p.x,p.y,p.w,p.h);x.fillStyle="#fff";x.fillRect(p.x+(p.dir>0?12:4),p.y+4,5,5);x.fillStyle="#ff0";x.fillRect(p.x+(p.dir>0?20:-4),p.y+12,4,4)}
+x.fillStyle="#fff";x.font="16px monospace";P.forEach((p,i)=>x.fillText(`J${i+1} ${p.sc} ♥${Math.max(0,p.lives)}`,i?440:24,2));x.fillText("RONDA "+lvl+"  CRÉDITOS "+cr,230,2);
+if(st!="play"){x.font="32px monospace";x.textAlign="center";if(st=="over")x.fillText("GAME OVER",W/2,H/2-50);if((t>>5)%2)x.fillText(cr?"PULSA 1 o 2":"INSERT COIN",W/2,H/2);x.textAlign="left";t++}}
+step();
+</script></body></html>
