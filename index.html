@@ -1,0 +1,17 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Minijuegos · Cimavilla 1992</title>
+<style>body{margin:0;font-family:monospace;background:#111;color:#eee}header{padding:20px;background:#2a1a0a;border-bottom:4px solid #e8a33a}h1{margin:0;color:#e8a33a}
+main{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;padding:20px}.c{background:#1d1d1d;border:2px solid #444;padding:14px;border-radius:6px}
+.c h2{margin:0 0 4px;color:#7fd}a.b{display:inline-block;margin-top:8px;padding:6px 12px;background:#e8a33a;color:#111;text-decoration:none;font-weight:bold}
+form{padding:20px;max-width:600px}select,textarea,input{width:100%;margin:4px 0 10px;background:#222;color:#eee;border:1px solid #555;padding:6px}button{padding:8px 16px}</style></head>
+<body><header><h1>Minijuegos · Cimavilla 1992</h1><p>Prototipos web jugables con teclado y ratón.</p></header>
+<main id="l"></main>
+<form id="f"><h2>Tu opinión</h2><label>Juego<select id="j"></select></label><label>¿Divierte? (1–5)<input id="n" type="number" min="1" max="5" value="3"></label>
+<label>Comentarios<textarea id="t" rows="4"></textarea></label><button>Guardar</button> <button type="button" id="x">Descargar opiniones (JSON)</button><p id="ok"></p></form>
+<script src="juegos.js"></script><script>
+const l=document.getElementById('l'),j=document.getElementById('j');
+JUEGOS.forEach(g=>{l.innerHTML+=`<div class="c"><h2>${g.titulo}</h2><small>por ${g.autor}</small><ul>${g.controles.map(c=>`<li>${c}</li>`).join('')}</ul><a class="b" href="${g.ruta}">Jugar</a></div>`;j.innerHTML+=`<option>${g.titulo}</option>`});
+const K='opiniones',get=()=>JSON.parse(localStorage[K]||'[]');
+f.onsubmit=e=>{e.preventDefault();const o=get();o.push({juego:j.value,nota:+n.value,texto:t.value,fecha:new Date().toISOString()});localStorage[K]=JSON.stringify(o);t.value='';ok.textContent='Guardada ('+o.length+' en total). Descárgalas y pásalas al chat.'};
+x.onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(get(),null,2)]));a.download='opiniones.json';a.click()};
+</script></body></html>

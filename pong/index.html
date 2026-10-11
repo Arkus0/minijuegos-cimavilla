@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Tenis de Chigre</title>
+<style>body{margin:0;background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;font-family:monospace;color:#fff}
+#cab{background:linear-gradient(#2a2a6a,#0a0a2a);border:10px solid #444;border-radius:20px 20px 0 0;padding:16px;text-align:center}
+#marq{background:#000;color:#ff0;font-size:28px;padding:8px;margin-bottom:10px;text-shadow:0 0 10px #f80;letter-spacing:4px}
+canvas{background:#000;border:4px solid #222;display:block}#h{font-size:13px;margin-top:8px;color:#aaf}</style></head><body>
+<div id="cab"><div id="marq">TENIS DE CHIGRE</div><canvas id="c" width="720" height="440"></canvas>
+<div id="h">M: moneda (25 pts) · 1: un jugador · 2: dos jugadores · J1: W/S · J2: ↑/↓ · Ratón también mueve J1</div></div>
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d"),W=720,H=440,PH=70;
+let cr=0,st="attract",two=0,a={y:H/2},b={y:H/2},ball,sa=0,sb=0,keys={},t=0,acx;
+function beep(f,d=.05){acx=acx||new AudioContext();const o=acx.createOscillator(),g=acx.createGain();o.type="square";o.frequency.value=f;g.gain.value=.07;o.connect(g).connect(acx.destination);o.start();o.stop(acx.currentTime+d)}
+function serve(d){ball={x:W/2,y:H/2,vx:5*d,vy:(Math.random()*4-2)}}
+function start(n){if(cr<n)return;cr-=n;two=n==2;sa=sb=0;a.y=b.y=H/2;serve(1);st="play";beep(880,.2)}
+onkeydown=e=>{keys[e.key]=1;if(e.key=="m"||e.key=="M"){cr++;beep(1500,.08)}if(st!="play"){if(e.key=="1")start(1);if(e.key=="2")start(2)}if(["ArrowUp","ArrowDown"," "].includes(e.key))e.preventDefault()};
+onkeyup=e=>keys[e.key]=0;c.onmousemove=e=>{a.y=e.offsetY};
+function step(){t++;if(st=="play"){if(keys.w||keys.W)a.y-=7;if(keys.s||keys.S)a.y+=7;
+if(two){if(keys.ArrowUp)b.y-=7;if(keys.ArrowDown)b.y+=7}else{const tgt=ball.vx>0?ball.y:H/2;b.y+=Math.max(-5.2,Math.min(5.2,(tgt-b.y)*.12))}
+a.y=Math.max(PH/2,Math.min(H-PH/2,a.y));b.y=Math.max(PH/2,Math.min(H-PH/2,b.y));
+ball.x+=ball.vx;ball.y+=ball.vy;if(ball.y<6||ball.y>H-6){ball.vy*=-1;beep(300)}
+const hit=(p,px)=>Math.abs(ball.x-px)<10&&Math.abs(ball.y-p.y)<PH/2+6;
+if(ball.vx<0&&hit(a,30)){ball.vx=-ball.vx*1.06;ball.vy=(ball.y-a.y)/6;beep(600)}
+if(ball.vx>0&&hit(b,W-30)){ball.vx=-ball.vx*1.06;ball.vy=(ball.y-b.y)/6;beep(600)}
+if(ball.x<0){sb++;beep(150,.3);serve(1)}if(ball.x>W){sa++;beep(150,.3);serve(-1)}
+if(sa>=7||sb>=7){st="over";t=0}}draw();requestAnimationFrame(step)}
+function draw(){x.fillStyle="#000";x.fillRect(0,0,W,H);x.fillStyle="#fff";for(let y=0;y<H;y+=24)x.fillRect(W/2-2,y,4,12);
+x.font="48px monospace";x.textAlign="center";x.fillText(sa,W/2-70,60);x.fillText(sb,W/2+70,60);
+x.fillRect(22,a.y-PH/2,10,PH);x.fillRect(W-32,b.y-PH/2,10,PH);if(st=="play")x.fillRect(ball.x-6,ball.y-6,12,12);
+x.font="18px monospace";x.fillText("CRÉDITOS "+cr,W/2,H-14);
+if(st!="play"){x.font="32px monospace";if(st=="over")x.fillText(sa>sb?"GANA JUGADOR 1":(two?"GANA JUGADOR 2":"GANA LA MÁQUINA"),W/2,H/2-30);
+if((t>>5)%2)x.fillText(cr?"PULSA 1 o 2":"INSERT COIN",W/2,H/2+20)}if(st!="play")t++}
+step();
+</script></body></html>

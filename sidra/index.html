@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Escanciar sidra</title>
+<style>body{margin:0;background:#2b1d14;color:#f3e6c8;font-family:Georgia,serif;text-align:center}canvas{display:block;margin:10px auto;border:4px solid #1a110b;background:#4a3020;cursor:none}</style></head><body>
+<div>Mantén pulsado el ratón para escanciar. Mueve el ratón en horizontal para colocar el vaso y en vertical para subir o bajar el brazo. R: otro culín.</div>
+<canvas id="c" width="900" height="560"></canvas>
+<script>
+// Escanciar sidra (prototipo). Más altura = más espuma (puntos) pero el viento desvía más el chorro.
+const c=document.getElementById('c'),x=c.getContext('2d');let m={x:450,y:150,down:false},s;
+function reset(){s={glass:450,bottle:450,wind:0,windT:0,inGlass:0,spilled:0,foam:0,drops:[],done:false,time:0}}reset();
+c.onmousemove=e=>{const r=c.getBoundingClientRect();m.x=e.clientX-r.left;m.y=e.clientY-r.top};
+c.onmousedown=()=>m.down=true;onmouseup=()=>{if(m.down&&s.inGlass+s.spilled>5)s.done=true;m.down=false};
+onkeydown=e=>{if(e.key.toLowerCase()=='r')reset()};
+const H=()=>Math.max(40,Math.min(260,300-m.y));
+function step(dt){if(s.done)return;s.time+=dt;s.windT-=dt;
+ if(s.windT<=0){s.wind=(Math.random()-.5)*140;s.windT=1+Math.random()*2}
+ s.bottle=450+Math.sin(s.time*1.3)*70;s.glass+=(m.x-s.glass)*dt*6;const h=H();
+ if(m.down){const f=60*dt;s.drops.push({x:s.bottle,y:60,vx:s.wind*h/260,vy:0,ml:f,h})}
+ for(const d of s.drops){d.vy+=900*dt;d.x+=d.vx*dt;d.y+=d.vy*dt;
+  if(!d.dead&&d.y>=440){d.dead=true;if(Math.abs(d.x-s.glass)<28){s.inGlass+=d.ml;s.foam+=d.ml*d.h/260}else s.spilled+=d.ml}}
+ s.drops=s.drops.filter(d=>!d.dead);if(s.inGlass>=180)s.done=true}
+const score=()=>Math.round(Math.max(0,100-Math.abs(s.inGlass-120)+Math.min(50,s.foam*.6)-s.spilled*1.2));
+function draw(){x.clearRect(0,0,900,560);x.fillStyle='#6b4a2f';x.fillRect(0,500,900,60);
+ x.fillStyle='#1f4d2b';x.fillRect(s.bottle-12,20,24,50);
+ x.fillStyle='#f0c85a';for(const d of s.drops)x.fillRect(d.x-2,d.y,4,8);
+ x.strokeStyle='#eee';x.lineWidth=3;x.strokeRect(s.glass-30,440,60,60);
+ const l=Math.min(56,s.inGlass/3);x.fillStyle='#e8b84a';x.fillRect(s.glass-28,498-l,56,l);
+ const fo=Math.min(12,s.foam/6);x.fillStyle='#fff8e0';x.fillRect(s.glass-28,498-l-fo,56,fo);
+ x.fillStyle='#f3e6c8';x.font='16px Georgia';x.textAlign='left';
+ x.fillText('Altura del brazo: '+Math.round(H()/2.6)+'%',20,30);
+ x.fillText('Viento: '+(s.wind>0?'hacia la derecha ':'hacia la izquierda ')+Math.abs(Math.round(s.wind)),20,52);
+ x.fillText('En el vaso: '+Math.round(s.inGlass)+' ml (ideal 120)',20,74);
+ x.fillText('Derramado: '+Math.round(s.spilled)+' ml',20,96);
+ if(s.done&&!s.drops.length){const p=score();x.textAlign='center';x.font='32px Georgia';
+  x.fillText((p>130?'¡Así se escancia, ho!':p>80?'Bien echado.':p>40?'Pasable.':'Eso ye pa tirar.')+'  Puntos: '+p,450,250);
+  x.font='18px Georgia';x.fillText('Pulsa R para otro culín',450,285)}}
+let t0=performance.now();(function loop(t){step(Math.min(.05,(t-t0)/1000));t0=t;draw();requestAnimationFrame(loop)})(t0);
+</script></body></html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Costa Verde 2000</title>
+<style>
+body{margin:0;background:#1a0f08;color:#fff;font-family:Arial Black,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#m{background:linear-gradient(#b30000,#600);border:8px solid #d4a017;border-radius:24px;padding:20px;width:560px;box-shadow:0 0 40px #f60}
+h1{text-align:center;margin:0 0 8px;color:#ffeb3b;text-shadow:0 0 8px #f00;letter-spacing:3px}
+#lights{display:flex;justify-content:space-between;margin-bottom:10px}.l{width:16px;height:16px;border-radius:50%;background:#430}.l.on{background:#ff0;box-shadow:0 0 10px #ff0}
+#reels{display:flex;gap:10px;justify-content:center;background:#000;padding:12px;border-radius:10px}
+.r{width:140px;height:140px;background:#fff;color:#000;font-size:80px;display:flex;align-items:center;justify-content:center;border-radius:8px;position:relative}
+.r.held::after{content:"RETENIDO";position:absolute;bottom:2px;font-size:14px;color:#c00}
+#info{display:flex;justify-content:space-between;margin:12px 0;font-size:20px}.led{background:#000;color:#f33;padding:4px 10px;font-family:monospace;font-size:24px;border-radius:4px}
+#msg{text-align:center;height:28px;color:#ffeb3b;font-size:20px}
+.b{display:flex;gap:8px;justify-content:center;margin-top:8px}button{font:inherit;font-size:16px;padding:10px 14px;border-radius:8px;border:3px solid #d4a017;background:#222;color:#fff;cursor:pointer}button:disabled{opacity:.35}
+#tabla{font-size:13px;text-align:center;margin-top:10px;color:#fdd}
+</style></head><body><div id="m">
+<h1>COSTA VERDE 2000</h1><div id="lights"></div>
+<div id="reels"><div class="r"></div><div class="r"></div><div class="r"></div></div>
+<div id="info"><span>CRÉDITOS <span class="led" id="cr">0</span></span><span>PREMIO <span class="led" id="pr">0</span></span></div>
+<div id="msg">Mete un duro (M)</div>
+<div class="b"><button id="coin">Moneda 25 pts [M]</button><button id="spin">Jugar [Espacio]</button><button id="cobrar">Cobrar [C]</button></div>
+<div class="b"><button class="act" data-i="0">1 [A]</button><button class="act" data-i="1">2 [S]</button><button class="act" data-i="2">3 [D]</button></div>
+<div id="tabla">🔔🔔🔔 ×100 · 7️⃣7️⃣7️⃣ ×50 · 🍉🍉🍉 ×20 · 🍋🍋🍋 ×10 · 🍒🍒🍒 ×5 · 🍒🍒 ×2<br>A/S/D: retener (antes de tirar) o avanzar un paso (tras perder)</div></div>
+<script>
+const S=["🍒","🍋","🍉","7️⃣","🔔"],W=[8,6,4,2,1],PAY={"🔔":100,"7️⃣":50,"🍉":20,"🍋":10,"🍒":5};
+const bag=S.flatMap((s,i)=>Array(W[i]).fill(s)),R=[...document.querySelectorAll(".r")],$=id=>document.getElementById(id);
+let cr=0,pr=0,cur=["🍒","🍋","🍉"],held=[0,0,0],mode="idle",nudges=0,busy=0,acx;
+for(let i=0;i<20;i++)$("lights").innerHTML+='<div class="l"></div>';const L=[...document.querySelectorAll(".l")];
+function beep(f,d=.08,t="square"){acx=acx||new AudioContext();const o=acx.createOscillator(),g=acx.createGain();o.type=t;o.frequency.value=f;g.gain.value=.08;o.connect(g).connect(acx.destination);o.start();o.stop(acx.currentTime+d)}
+let tick=0;setInterval(()=>{tick++;L.forEach((l,i)=>l.classList.toggle("on",mode=="win"?tick%2==i%2:(i+tick)%5==0))},mode=="win"?100:180);
+function draw(){R.forEach((r,i)=>{r.textContent=cur[i];r.classList.toggle("held",!!held[i])});$("cr").textContent=cr;$("pr").textContent=pr;
+$("spin").disabled=busy||cr<1;$("cobrar").disabled=busy||pr<1;document.querySelectorAll(".act").forEach((b,i)=>{b.disabled=busy||!(mode=="hold"||(mode=="nudge"&&nudges>0));b.textContent=(i+1)+(mode=="nudge"?" AVANZAR ":" RETENER ")+"["+"ASD"[i]+"]"})}
+const msg=t=>$("msg").textContent=t,rnd=()=>bag[Math.random()*bag.length|0],nxt=s=>S[(S.indexOf(s)+1)%S.length];
+function score(){const[a,b,c]=cur;if(a==b&&b==c)return PAY[a];if(a=="🍒"&&b=="🍒")return 2;return 0}
+function coin(){cr+=1;beep(1200,.05);beep(1600,.1);if(mode=="idle")msg("¡A jugar!");draw()}
+async function spin(){if(busy||cr<1)return;cr--;busy=1;nudges=0;const wasHold=mode=="hold";if(!wasHold)held=[0,0,0];mode="spin";draw();
+for(let i=0;i<3;i++){if(held[i])continue;const n=12+i*8;for(let k=0;k<n;k++){cur[i]=rnd();R[i].textContent=cur[i];beep(300+k*15,.03);await new Promise(r=>setTimeout(r,40+k*2))}beep(150,.12,"sawtooth")}
+held=[0,0,0];busy=0;resolve(true)}
+function resolve(fresh){const w=score();if(w){pr+=w;mode="win";msg("¡PREMIO! +"+w);fanfare()}else if(fresh){const r=Math.random();
+if(r<.25){mode="nudge";nudges=1+(Math.random()*3|0);msg("¡AVANCES! Tienes "+nudges)}else if(r<.5){mode="hold";msg("¡RETENCIONES! Elige y juega")}else{mode="idle";msg(["Casi...","¡Uy, por poco!","Otra y la sacas"][Math.random()*3|0])}}else if(nudges<1){mode="idle";msg("Sin suerte")}draw()}
+async function fanfare(){busy=1;draw();for(const f of [523,659,784,1047,784,1047])beep(f,.12),await new Promise(r=>setTimeout(r,120));busy=0;mode="idle";draw()}
+function act(i){if(busy)return;if(mode=="hold"){held[i]^=1;beep(900);draw()}else if(mode=="nudge"&&nudges>0){cur[i]=nxt(cur[i]);nudges--;beep(500);msg("Avances: "+nudges);resolve(false)}}
+function cobrar(){if(!pr||busy)return;let n=pr;pr=0;msg("Cobrando "+n+" créditos ("+n*25+" pts)");(async()=>{for(let i=0;i<Math.min(n,30);i++)beep(1500,.04),await new Promise(r=>setTimeout(r,60))})();draw()}
+$("coin").onclick=coin;$("spin").onclick=spin;$("cobrar").onclick=cobrar;document.querySelectorAll(".act").forEach(b=>b.onclick=()=>act(+b.dataset.i));
+onkeydown=e=>{const k=e.key.toLowerCase();if(k=="m")coin();else if(k==" "){e.preventDefault();spin()}else if(k=="c")cobrar();else if("asd".includes(k)&&k)act("asd".indexOf(k))};
+draw();
+</script></body></html>
