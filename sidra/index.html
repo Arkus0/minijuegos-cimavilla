@@ -18,18 +18,45 @@ function step(dt){if(s.done)return;s.time+=dt;s.windT-=dt;
   if(!d.dead&&d.y>=440){d.dead=true;if(Math.abs(d.x-s.glass)<28){s.inGlass+=d.ml;s.foam+=d.ml*d.h/260}else s.spilled+=d.ml}}
  s.drops=s.drops.filter(d=>!d.dead);if(s.inGlass>=180)s.done=true}
 const score=()=>Math.round(Math.max(0,100-Math.abs(s.inGlass-120)+Math.min(50,s.foam*.6)-s.spilled*1.2));
-function draw(){x.clearRect(0,0,900,560);x.fillStyle='#6b4a2f';x.fillRect(0,500,900,60);
- x.fillStyle='#1f4d2b';x.fillRect(s.bottle-12,20,24,50);
- x.fillStyle='#f0c85a';for(const d of s.drops)x.fillRect(d.x-2,d.y,4,8);
- x.strokeStyle='#eee';x.lineWidth=3;x.strokeRect(s.glass-30,440,60,60);
- const l=Math.min(56,s.inGlass/3);x.fillStyle='#e8b84a';x.fillRect(s.glass-28,498-l,56,l);
- const fo=Math.min(12,s.foam/6);x.fillStyle='#fff8e0';x.fillRect(s.glass-28,498-l-fo,56,fo);
- x.fillStyle='#f3e6c8';x.font='16px Georgia';x.textAlign='left';
+// Fondo del chigre: pared de piedra, estantes con botellas, pipas, lámparas y barra de madera.
+const bg=document.createElement('canvas');bg.width=900;bg.height=560;(function(){const g=bg.getContext('2d');
+ let gr=g.createLinearGradient(0,0,0,560);gr.addColorStop(0,'#3b2a1e');gr.addColorStop(1,'#1c130c');g.fillStyle=gr;g.fillRect(0,0,900,560);
+ for(let y=0;y<420;y+=28)for(let x=(y/28%2)*30-30;x<900;x+=60){g.fillStyle=`hsl(25,18%,${16+Math.random()*8}%)`;g.fillRect(x+2,y+2,56,24)}
+ for(const sy of [150,250]){g.fillStyle='#5a3a22';g.fillRect(560,sy,320,10);
+  for(let i=0;i<11;i++){const bx=575+i*28;g.fillStyle=i%3?'#1f4d2b':'#2c6a3a';g.fillRect(bx,sy-52,16,52);g.fillRect(bx+5,sy-66,6,14);
+   g.fillStyle='rgba(255,255,255,.25)';g.fillRect(bx+3,sy-48,3,40);g.fillStyle='#e8dcc0';g.fillRect(bx+2,sy-34,12,14)}}
+ for(const px of [60,190]){gr=g.createLinearGradient(px,0,px+110,0);gr.addColorStop(0,'#4a2c16');gr.addColorStop(.5,'#8a5a32');gr.addColorStop(1,'#3a210f');
+  g.fillStyle=gr;g.beginPath();g.ellipse(px+55,360,55,70,0,0,7);g.fill();g.strokeStyle='#222';g.lineWidth=5;
+  for(const dy of[-40,40]){g.beginPath();g.ellipse(px+55,360+dy,52,10,0,0,7);g.stroke()}}
+ g.fillStyle='#f3e6c8';g.font='bold 30px Georgia';g.fillText('CHIGRE «EL MUELLE»',300,60);
+ gr=g.createLinearGradient(0,500,0,560);gr.addColorStop(0,'#8b5e3a');gr.addColorStop(1,'#4a2e18');g.fillStyle=gr;g.fillRect(0,500,900,60);
+ g.fillStyle='rgba(255,255,255,.12)';g.fillRect(0,500,900,4)})();
+function draw(){x.drawImage(bg,0,0);
+ // luz cálida de lámpara
+ let L=x.createRadialGradient(450,0,10,450,0,500);L.addColorStop(0,'rgba(255,200,120,.35)');L.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=L;x.fillRect(0,0,900,560);
+ // brazo y botella
+ x.strokeStyle='#d9a882';x.lineWidth=18;x.lineCap='round';x.beginPath();x.moveTo(s.bottle+8,30);x.lineTo(s.bottle+70,-20);x.stroke();
+ let G=x.createLinearGradient(s.bottle-13,0,s.bottle+13,0);G.addColorStop(0,'#0f2a17');G.addColorStop(.35,'#3f8a52');G.addColorStop(1,'#0f2a17');
+ x.fillStyle=G;x.fillRect(s.bottle-13,10,26,52);x.fillRect(s.bottle-5,58,10,8);
+ // chorro con volumen: trazo grueso dorado con brillo central
+ if(s.drops.length>1){for(const [w,col] of [[7,'rgba(200,140,30,.85)'],[3,'rgba(255,235,150,.9)']]){x.strokeStyle=col;x.lineWidth=w;x.beginPath();
+  let first=true;for(const d of s.drops){if(first){x.moveTo(d.x,d.y);first=false}else x.lineTo(d.x,d.y)}x.stroke()}}
+ // vaso de sidra: cristal fino, ancho arriba
+ const gx=s.glass,top=430,bot=500,l=Math.min(64,s.inGlass/2.8),fo=Math.min(14,s.foam/5);
+ x.save();x.beginPath();x.moveTo(gx-34,top);x.lineTo(gx+34,top);x.lineTo(gx+28,bot);x.lineTo(gx-28,bot);x.closePath();
+ x.fillStyle='rgba(220,240,255,.12)';x.fill();x.clip();
+ G=x.createLinearGradient(0,bot-l,0,bot);G.addColorStop(0,'#f2c85a');G.addColorStop(1,'#c98a1e');x.fillStyle=G;x.fillRect(gx-40,bot-l,80,l);
+ for(let i=0;i<6;i++){x.fillStyle='rgba(255,255,220,.6)';x.fillRect(gx-20+((s.time*40+i*17)%40),bot-((s.time*60+i*23)%Math.max(1,l)),2,2)}
+ x.fillStyle='#fffbe8';x.fillRect(gx-40,bot-l-fo,80,fo);x.restore();
+ x.strokeStyle='rgba(255,255,255,.7)';x.lineWidth=2;x.beginPath();x.moveTo(gx-34,top);x.lineTo(gx-28,bot);x.lineTo(gx+28,bot);x.lineTo(gx+34,top);x.stroke();
+ x.fillStyle='rgba(255,255,255,.35)';x.fillRect(gx-26,top+6,4,58);
+ // HUD
+ x.fillStyle='rgba(0,0,0,.45)';x.fillRect(10,10,330,96);x.fillStyle='#f3e6c8';x.font='16px Georgia';x.textAlign='left';
  x.fillText('Altura del brazo: '+Math.round(H()/2.6)+'%',20,30);
  x.fillText('Viento: '+(s.wind>0?'hacia la derecha ':'hacia la izquierda ')+Math.abs(Math.round(s.wind)),20,52);
  x.fillText('En el vaso: '+Math.round(s.inGlass)+' ml (ideal 120)',20,74);
  x.fillText('Derramado: '+Math.round(s.spilled)+' ml',20,96);
- if(s.done&&!s.drops.length){const p=score();x.textAlign='center';x.font='32px Georgia';
+ if(s.done&&!s.drops.length){const p=score();x.fillStyle='rgba(0,0,0,.6)';x.fillRect(150,210,600,90);x.fillStyle='#f3e6c8';x.textAlign='center';x.font='32px Georgia';
   x.fillText((p>130?'¡Así se escancia, ho!':p>80?'Bien echado.':p>40?'Pasable.':'Eso ye pa tirar.')+'  Puntos: '+p,450,250);
   x.font='18px Georgia';x.fillText('Pulsa R para otro culín',450,285)}}
 let t0=performance.now();(function loop(t){step(Math.min(.05,(t-t0)/1000));t0=t;draw();requestAnimationFrame(loop)})(t0);
