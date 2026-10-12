@@ -28,7 +28,7 @@ const bg=document.createElement('canvas');bg.width=900;bg.height=560;(function()
  for(const px of [60,190]){gr=g.createLinearGradient(px,0,px+110,0);gr.addColorStop(0,'#4a2c16');gr.addColorStop(.5,'#8a5a32');gr.addColorStop(1,'#3a210f');
   g.fillStyle=gr;g.beginPath();g.ellipse(px+55,360,55,70,0,0,7);g.fill();g.strokeStyle='#222';g.lineWidth=5;
   for(const dy of[-40,40]){g.beginPath();g.ellipse(px+55,360+dy,52,10,0,0,7);g.stroke()}}
- g.fillStyle='#f3e6c8';g.font='bold 30px Georgia';g.fillText('CHIGRE «EL MUELLE»',300,60);
+ g.fillStyle='#f3e6c8';g.font='bold 30px Georgia';g.font='bold 26px Georgia';g.fillText('CHIGRE «EL MUELLE»',420,50);
  gr=g.createLinearGradient(0,500,0,560);gr.addColorStop(0,'#8b5e3a');gr.addColorStop(1,'#4a2e18');g.fillStyle=gr;g.fillRect(0,500,900,60);
  g.fillStyle='rgba(255,255,255,.12)';g.fillRect(0,500,900,4)})();
 function draw(){x.drawImage(bg,0,0);
