@@ -33,7 +33,8 @@ Lo ideal es entregarlas **por capas**, como PNG del mismo tamaño o recortes con
 2. `huecos`: ventanas, galería, puertas y balcones.
 3. `alero`: tejado y alero. Va en la capa **overhead**, que tapa al jugador cuando pasa por detrás.
 4. `rotulo`: letreros y carteles, para poder cambiar textos.
-5. `sombra` y `luz`: opcionales.
+5. `luces`: **obligatoria** (ciclo día/noche completo, decisión del 14-10-2026). Mismo tamaño que la fachada, solo con ventanas, escaparates y rótulos encendidos; el resto transparente.
+6. `sombra`: opcional.
 
 Si llega un PNG completo, lo recorto yo. Si se puede, la anchura de la fachada va en múltiplos de 16 px y se repite por **crujías** de 32 o 48 px, para recombinarla.
 
@@ -61,6 +62,9 @@ Si llega un PNG completo, lo recorto yo. Si se puede, la anchura de la fachada v
 | `overhead` | objetos | Aleros y tejados que tapan al jugador; se atenúan cuando hay alguien detrás |
 | `lights` | objetos | Fuentes de luz (`radius`, `color`, `flicker`) |
 | `collision` | objetos | Rectángulos de colisión (`collides=true`) |
+
+## 11. Decisiones del barrio
+Escala, época, día/noche, interiores, tono y navegación: ver `Arkus0/cimavilla-2d/encargos/03-BARRIO.md`. Orden acordado: **primero el ART-GATE**; el trazado del barrio y su greybox, después.
 
 ## 10. Mapa: convención de bandas
 Canon de encargos y planos: `Arkus0/cimavilla-2d/encargos/` (02-MAPA.md, con el esquema del barrio y el plano de la microcalle; copias en `docs/img/`).
