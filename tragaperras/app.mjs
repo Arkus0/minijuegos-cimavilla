@@ -20,12 +20,19 @@ const reelElements = [...document.querySelectorAll('.reel')];
 const pauses = new Set();
 let busy = false, hostSession = !standalone, toastTimer, activeOperation = Promise.resolve(), finished = false, ending = false;
 const pendingWaits = new Set();
+let lastInteraction = performance.now(), lastAttractChange = 0, attractBeat = 0;
 let keys = { coin: 'm', spin: ' ', cashout: 'c', reel1: 'a', reel2: 's', reel3: 'd' };
 
-for (let i = 0; i < 24; i++) {
-  const bulb = document.createElement('i'); bulb.className = 'bulb'; bulb.style.setProperty('--i', i);
-  $('top-bulbs').append(bulb);
+for (const [id, count, offset] of [['top-bulbs',24,0],['left-bulbs',17,24],['right-bulbs',17,41],['bottom-bulbs',24,58]]) {
+  for (let i = 0; i < count; i++) {
+    const bulb = document.createElement('i');
+    bulb.className = id.includes('left') || id.includes('right') ? 'perimeter-bulb' : 'bulb';
+    bulb.style.setProperty('--i', i + offset); $(id).append(bulb);
+  }
 }
+$('cabinet').addEventListener('animationend', event => {
+  if (event.animationName === 'coin-lamps') $('cabinet').classList.remove('coin-arrived');
+});
 for (const symbol of [...SYMBOLS].reverse()) {
   const row = document.createElement('div'), icons = document.createElement('span'); icons.className = 'symbols';
   for (let i = 0; i < 3; i++) {
@@ -47,6 +54,37 @@ function story(kicker, title, copy) {
 }
 function machine(message, hint = 'UNA PARTIDA · 25 PESETAS') {
   $('machine-status').textContent = message; $('machine-hint').textContent = hint;
+}
+function marquee(message) {
+  if ($('attract-message').textContent === message) return;
+  $('attract-message').textContent = message;
+  const panel = document.querySelector('.attract-panel');
+  panel.classList.remove('message-pop'); void panel.offsetWidth; panel.classList.add('message-pop');
+}
+function markInteraction() { lastInteraction = performance.now(); }
+function describeMarquee() {
+  const s = game.state;
+  if (s.mode === 'win') marquee('¡PREMIO! ¡ESTA SE CELEBRA!');
+  else if (s.mode === 'spinning') marquee('¡QUE RUEDEN LOS RODILLOS!');
+  else if (s.mode === 'hold') marquee('RETENCIONES · ELIGE HASTA DOS');
+  else if (s.mode === 'nudge') marquee(`${s.nudges} AVANCE${s.nudges === 1 ? '' : 'S'} · ¡AFINA EL OJO!`);
+  else if (game.empty) marquee('LA NOCHE PIDE UNA PAUSA');
+  else if (s.credits > 0) marquee('¡HAGAN JUEGO!');
+  else marquee('¡LA SUERTE LLAMA!');
+}
+
+function showerCoins(big) {
+  const root = $('prize-particles'); root.replaceChildren();
+  if (reels.reduced) return;
+  const origin = $('reel-window').getBoundingClientRect(), cabinet = $('cabinet').getBoundingClientRect();
+  for (let i = 0; i < (big ? 42 : 24); i++) {
+    const particle = document.createElement('span'), star = i % 4 === 0;
+    particle.className = `prize-particle${star ? ' star-particle' : ''}`;
+    particle.textContent = star ? '✦' : '25';
+    const angle = i * 2.4;
+    particle.style.cssText = `--origin-x:${origin.left - cabinet.left + origin.width * .5}px;--origin-y:${origin.top - cabinet.top + origin.height * .4}px;--travel-x:${Math.cos(angle) * (90 + (i * 43) % 210)}px;--travel-y:${Math.sin(angle) * 100 + 150 + (i * 17) % 180}px;--rotation:${i * 97}deg;--duration:${1.25 + (i % 5) * .13}s;--delay:${(i % 8) * .065}s`;
+    root.append(particle);
+  }
 }
 
 function describeState() {
@@ -88,6 +126,7 @@ function render({ describe = true } = {}) {
   $('new-night').disabled = blocked || hostSession;
   $('mobile-new-night').disabled = blocked || hostSession;
   $('cabinet').classList.toggle('has-credit', s.credits > 0);
+  $('cabinet').dataset.mode = s.mode;
   document.body.classList.toggle('playing', s.spins > 0 || s.credits > 0 || s.bank > 0);
   $('cabinet').classList.toggle('bonus-active', s.mode === 'hold' || s.mode === 'nudge');
   actionButtons.forEach((button, i) => {
@@ -101,7 +140,10 @@ function render({ describe = true } = {}) {
     reelElements[i].classList.toggle('held', s.held[i]);
   });
   $('reel-window').setAttribute('aria-label', s.mode === 'spinning' ? 'Rodillos girando' : `Rodillos: ${game.symbols.map(s => LABELS[SYMBOLS.indexOf(s)]).join(', ')}`);
-  if (describe && s.mode !== 'spinning' && s.mode !== 'win') describeState();
+  if (describe) {
+    describeMarquee();
+    if (s.mode !== 'spinning' && s.mode !== 'win') describeState();
+  }
 }
 
 function stopped(index) {
@@ -130,16 +172,20 @@ async function presentOutcome(outcome) {
   if (outcome.type === 'win') {
     const amount = outcome.reward * STAKE, big = outcome.reward >= 50;
     $('cabinet').classList.add('celebrating');
+    marquee('¡PREMIO! ¡ESTA SE CELEBRA!');
+    if (!ending) showerCoins(big);
     $('win-flash-label').textContent = big ? '¡PREMIO GRANDE!' : '¡PREMIO!';
     $('win-flash-value').replaceChildren(document.createTextNode(`+${fmt(amount)} `));
     const unit = document.createElement('small'); unit.textContent = 'PTS.'; $('win-flash-value').append(unit);
     $('win-flash').classList.add('visible');
     story(big ? 'ESTA LA CUENTAS MAÑANA' : 'LA MAREA TRAJO PREMIO', big ? 'Hoy el puerto es tuyo.' : '¡Esas pesetas son tuyas!', `Has ganado ${fmt(amount)} pesetas. El premio está guardado en la máquina; pulsa C para cobrarlo.`);
     machine('¡PREMIO!', `+${fmt(amount)} PESETAS`);
-    audio.win(big); render({ describe: false }); save();
-    await wait(audio.muted ? 1200 : big ? 2200 : 1700);
+    if (!ending) audio.win(big);
+    render({ describe: false }); save();
+    await wait(reels.reduced || audio.muted ? 1400 : big ? 3300 : 2900);
     $('win-flash').classList.remove('visible');
     $('cabinet').classList.remove('celebrating');
+    $('prize-particles').replaceChildren();
     game.settleWin();
   } else if (outcome.type === 'hold' || outcome.type === 'nudge') audio.bonus();
 }
@@ -147,7 +193,10 @@ async function presentOutcome(outcome) {
 function insertCoin() {
   if (busy || pauses.size || finished) return;
   if (!game.insertCoin()) { toast('No quedan duros en el bolsillo. Cobra el saldo o empieza otra noche.'); return; }
-  audio.unlock().then(() => audio.coin());
+  markInteraction();
+  audio.unlock().then(() => { if (!finished && !ending) { audio.coin(); audio.welcome(); } });
+  $('cabinet').classList.remove('coin-arrived'); void $('cabinet').offsetWidth;
+  $('cabinet').classList.add('coin-arrived');
   $('coin-button').classList.remove('coin-inserted'); void $('coin-button').offsetWidth;
   $('coin-button').classList.add('coin-inserted');
   $('tray-coins').replaceChildren(); $('tray-label').textContent = 'SU PREMIO, AQUÍ';
@@ -158,20 +207,25 @@ async function spin() {
   if (busy || pauses.size || finished) return;
   if (!game.canSpin) { toast(game.state.bank > 0 ? 'Mete una moneda con M, o cobra tu premio con C.' : 'Primero mete una moneda de 25 pesetas con M.'); return; }
   busy = true;
+  markInteraction();
   const plan = game.beginSpin();
   save(); render({ describe: false });
   story('QUE RUEDEN LOS RODILLOS', 'Un segundo de esperanza.', 'El puerto sabe guardar secretos. A ver qué te cuenta esta vez.');
   machine('SUERTE', 'LOS RODILLOS ESTÁN GIRANDO');
+  marquee('¡QUE RUEDEN LOS RODILLOS!');
   $('tray-coins').replaceChildren();
-  await audio.unlock(); audio.click(); audio.startMotor();
-  await reels.spin(plan.targets, plan.held, index => {
-    stopped(index);
-    if (index === 1 && !plan.held[2] && STRIPS[0][plan.targets[0]] === STRIPS[1][plan.targets[1]]) {
-      $('cabinet').classList.add('anticipation');
-      machine('UNO MÁS…', 'LA SUERTE ESTÁ EN EL ÚLTIMO');
-      audio.tone(220, .55, 0, .12, 'triangle');
-    }
-  });
+  await audio.unlock();
+  if (!ending) {
+    audio.click(); audio.startMotor();
+    await reels.spin(plan.targets, plan.held, index => {
+      stopped(index);
+      if (index === 1 && !plan.held[2] && STRIPS[0][plan.targets[0]] === STRIPS[1][plan.targets[1]]) {
+        $('cabinet').classList.add('anticipation');
+        machine('UNO MÁS…', 'LA SUERTE ESTÁ EN EL ÚLTIMO');
+        marquee('UNO MÁS… ¡CRUZA LOS DEDOS!'); audio.anticipation();
+      }
+    });
+  } else reels.setPositions(plan.targets);
   $('cabinet').classList.remove('anticipation');
   audio.stopMotor();
   const outcome = game.finishSpin(); save();
@@ -182,14 +236,16 @@ async function spin() {
 
 async function reelAction(index) {
   if (busy || pauses.size || finished) return;
+  markInteraction();
   if (game.state.mode === 'hold') {
     if (!game.toggleHold(index)) { toast('Puedes retener hasta dos rodillos. Deja uno a la suerte.'); return; }
     await audio.unlock(); audio.click(); render(); save();
   } else if (game.state.mode === 'nudge') {
     busy = true;
     const outcome = game.nudge(index); save(); render({ describe: false });
-    await audio.unlock(); audio.click();
-    await reels.nudge(index, game.state.positions[index], stopped);
+    await audio.unlock();
+    if (!ending) { audio.click(); await reels.nudge(index, game.state.positions[index], stopped); }
+    else reels.setPositions(game.state.positions);
     await presentOutcome(outcome);
     busy = false; render(); save();
   }
@@ -198,20 +254,24 @@ async function reelAction(index) {
 async function cashOut() {
   if (busy || pauses.size || finished || !game.canCashOut) return;
   busy = true;
+  markInteraction(); audio.stopVoice();
   const amount = game.cashOut(); save(); render({ describe: false });
   story('DEL PREMIO AL BOLSILLO', 'Que suenen esas monedas.', `${fmt(amount)} pesetas han vuelto a tu bolsillo. La Costa Verde te espera si quieres otra ronda.`);
   machine('COBRANDO', `${fmt(amount)} PESETAS`);
+  marquee('¡QUE SUENE LA CAJA!');
   $('coin-tray').classList.add('paying'); $('tray-coins').replaceChildren();
   await audio.unlock();
   const count = Math.min(amount / STAKE, 18);
   for (let i = 0; i < count; i++) {
     const coin = document.createElement('span'); coin.className = 'tray-coin';
     coin.style.cssText = `--x:${18 + (i * 29) % 68}%;--y:${(i * 3) % 9 - 3}px;--r:${i * 37}deg;--delay:0s`;
-    $('tray-coins').append(coin); audio.coin(); await wait(70);
+    $('tray-coins').append(coin);
+    if (!ending) audio.payoutCoin();
+    await wait(70);
   }
   await wait(400);
   $('coin-tray').classList.remove('paying'); $('tray-label').textContent = `${fmt(amount)} PTS. COBRADAS`;
-  busy = false; render({ describe: false }); machine('PREMIO COBRADO', 'GRACIAS Y BUENA SUERTE');
+  busy = false; render({ describe: false }); machine('PREMIO COBRADO', 'GRACIAS Y BUENA SUERTE'); marquee('¡AL BOLSILLO, QUE ES TUYO!');
   toast(`${fmt(amount)} pesetas al bolsillo.`); save();
 }
 
@@ -220,6 +280,7 @@ function run(action) {
   activeOperation = Promise.resolve(action()).catch(error => {
     console.error('Costa Verde:', error);
     audio.stopMotor(); reels.finishImmediately();
+    audio.stopVoice(); $('prize-particles').replaceChildren(); $('cabinet').classList.remove('celebrating', 'anticipation');
     if (game.state.mode === 'spinning') game.finishSpin();
     game.settleWin(); busy = false; render(); save(); toast('La máquina ha recuperado la partida. Puedes continuar.');
   });
@@ -230,6 +291,8 @@ function setPause(reason, paused) {
   if (paused) pauses.add(reason); else pauses.delete(reason);
   const active = pauses.size > 0;
   reels.pause(active); audio.pause(active);
+  $('cabinet').classList.toggle('is-paused', active);
+  if (!active) markInteraction();
   $('pause-veil').hidden = !(pauses.has('manual') || pauses.has('host'));
   $('resume-button').disabled = pauses.has('host');
   $('resume-button').textContent = pauses.has('host') ? 'ESPERANDO AL JUEGO' : 'CONTINUAR';
@@ -249,10 +312,12 @@ document.querySelectorAll('dialog').forEach(dialog => {
 });
 $('help-button').onclick = () => openDialog('help-dialog');
 $('payout-button').onclick = () => openDialog('payout-dialog');
+$('prize-banner').onclick = $('payout-button').onclick;
 $('new-night').onclick = () => { if (!busy && !hostSession) openDialog('new-night-dialog'); };
 $('mobile-new-night').onclick = $('new-night').onclick;
 $('confirm-new-night').onclick = () => {
   game = new SlotGame({ seed: seed() }); finished = false;
+  audio.stopVoice(); markInteraction();
   reels.setPositions(game.state.positions); $('tray-coins').replaceChildren(); $('tray-label').textContent = 'SU PREMIO, AQUÍ';
   $('new-night-dialog').close(); render(); save(); toast('Otra noche. 500 pesetas. La suerte empieza de nuevo.');
 };
@@ -311,6 +376,7 @@ function finish() {
   if (busy) return null;
   if (!finished) {
     game.cashOut(); save(); finished = true;
+    audio.stopVoice(); audio.stopMotor();
     const result = game.result();
     if (!standalone) window.parent.postMessage(result, '*');
     window.dispatchEvent(new CustomEvent('minijuego:fin', { detail: result }));
@@ -332,6 +398,7 @@ window.CimavillaTragaperras = Object.freeze({
     const pesetas = context.Pesetas ?? context.pesetas ?? 500;
     if (!Number.isSafeInteger(pesetas) || pesetas < 0) throw new TypeError('Pesetas debe ser un entero positivo o cero.');
     hostSession = true; finished = false;
+    audio.stopVoice(); markInteraction();
     game = new SlotGame({ pesetas, seed: context.Semilla ?? context.semilla ?? seed() });
     if (context.controles) keys = { ...keys, ...context.controles };
     reels.setPositions(game.state.positions); $('tray-coins').replaceChildren();
@@ -357,6 +424,18 @@ window.addEventListener('message', e => {
   } else if (e.data.tipo === 'pausar') window.CimavillaTragaperras.pausar(e.data.pausa);
   else if (e.data.tipo === 'terminar') window.CimavillaTragaperras.terminar();
 });
+
+const attractMessages = ['¡LA SUERTE LLAMA!', '¡CINCO DUROS Y A RODAR!', '¡LA ALEGRÍA DEL CHIGRE!', '¿ECHAMOS UNA, HO?'];
+setInterval(() => {
+  if (busy || pauses.size || finished || game.empty || game.state.mode !== 'idle') return;
+  const now = performance.now();
+  if (now - lastAttractChange >= 6500) {
+    lastAttractChange = now; attractBeat++;
+    marquee(game.state.credits ? '¡QUE RUEDEN LOS RODILLOS!' : attractMessages[attractBeat % attractMessages.length]);
+    document.querySelectorAll('.pay-item').forEach((item, i) => item.classList.toggle('is-featured', i === attractBeat % 5));
+  }
+  if (now - lastInteraction > 18000) audio.attract(attractBeat % 3 === 0);
+}, 1500);
 
 reels.setPositions(game.state.positions); renderSound(); render(); save();
 if (game.empty && !hostSession) {

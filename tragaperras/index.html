@@ -8,6 +8,7 @@
   <title>Costa Verde 2000 · Cimavilla 1992</title>
   <link rel="preload" href="assets/fonts/cormorant-garamond-italic-600.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="showtime.css">
   <script type="module" src="app.mjs"></script>
 </head>
 <body>
@@ -39,19 +40,25 @@
     <section class="machine-area" aria-label="Tragaperras Costa Verde 2000">
       <div class="machine-shadow" aria-hidden="true"></div>
       <div class="cabinet" id="cabinet">
+        <div class="perimeter-lights lights-left" id="left-bulbs" aria-hidden="true"></div><div class="perimeter-lights lights-right" id="right-bulbs" aria-hidden="true"></div>
+        <div class="prize-particles" id="prize-particles" aria-hidden="true"></div>
         <div class="cabinet-crown" aria-hidden="true"><span></span><b>RECREATIVOS DEL CANTÁBRICO</b><span></span></div>
         <div class="machine-face">
           <div class="backglass"><div class="coast-art" aria-hidden="true"></div><span class="glass-eyebrow">LA FORTUNA DEL CANTÁBRICO</span><h2>Costa Verde</h2><div class="model-number"><span></span><b>2000</b><span></span></div><div class="glass-stars" aria-hidden="true">✦ &nbsp; ✦ &nbsp; ✦</div></div>
           <div class="bulb-strip" id="top-bulbs" aria-hidden="true"></div>
+          <button class="prize-banner" id="prize-banner" aria-label="Premio gordo de 2.500 pesetas por tres campanas. Consultar premios">
+            <img class="pesetas-art" src="assets/pesetas.svg" alt=""><span class="prize-slogan"><small>¡LA ALEGRÍA DEL CHIGRE!</small><b>¡PREMIO GORDO!</b><span>TRES CAMPANAS Y QUE SUENE LA CAJA</span></span><span class="prize-maximum"><b>2.500</b><small>PESETAS</small></span><span class="banner-spark" aria-hidden="true">✦</span>
+          </button>
           <button class="payout-strip" id="payout-button" aria-label="Consultar tabla de premios">
             <span class="pay-item"><img src="assets/cherry.svg" alt="Tres cerezas"><b>125</b></span><span class="pay-item"><img src="assets/lemon.svg" alt="Tres limones"><b>250</b></span><span class="pay-item"><img src="assets/watermelon.svg" alt="Tres sandías"><b>500</b></span><span class="pay-item"><img src="assets/seven.svg" alt="Tres sietes"><b>1.250</b></span><span class="pay-item jackpot-pay"><img src="assets/bell.svg" alt="Tres campanas"><b>2.500</b></span><span class="pay-unit">PTS.</span>
           </button>
+          <div class="attract-panel" aria-hidden="true"><span class="attract-arrow">»</span><span id="attract-message">¡LA SUERTE LLAMA!</span><span class="attract-arrow">«</span></div>
           <div class="reel-surround">
             <div class="reel-head"><span>TRES IGUALES EN LA LÍNEA</span><span class="two-cherries">2 CEREZAS = 50 PTS.</span></div>
             <div class="reel-window" id="reel-window" role="img" aria-label="Rodillos: cerezas, limón, siete">
               <div class="payline-arrow left" aria-hidden="true"></div>
               <div class="reel" data-reel="0"><canvas aria-hidden="true"></canvas><span class="held-label">RETENIDO</span></div><div class="reel" data-reel="1"><canvas aria-hidden="true"></canvas><span class="held-label">RETENIDO</span></div><div class="reel" data-reel="2"><canvas aria-hidden="true"></canvas><span class="held-label">RETENIDO</span></div>
-              <div class="payline-arrow right" aria-hidden="true"></div><div class="payline" aria-hidden="true"></div><div class="win-flash" id="win-flash" aria-hidden="true"><span id="win-flash-label">¡PREMIO!</span><strong id="win-flash-value">+125 <small>PTS.</small></strong></div>
+              <div class="payline-arrow right" aria-hidden="true"></div><div class="payline" aria-hidden="true"></div><div class="win-flash" id="win-flash" aria-hidden="true"><span class="win-ornament">✦ &nbsp; ✦ &nbsp; ✦</span><span id="win-flash-label">¡PREMIO!</span><strong id="win-flash-value">+125 <small>PTS.</small></strong><span class="win-cheer">¡QUE SUENEN ESAS PESETAS!</span></div>
             </div>
             <div class="reel-actions"><button class="hold-button" data-reel-action="0" disabled><span class="hold-lamp"></span><span class="action-label">RETENER</span><kbd>A</kbd></button><button class="hold-button" data-reel-action="1" disabled><span class="hold-lamp"></span><span class="action-label">RETENER</span><kbd>S</kbd></button><button class="hold-button" data-reel-action="2" disabled><span class="hold-lamp"></span><span class="action-label">RETENER</span><kbd>D</kbd></button></div>
           </div>
@@ -62,6 +69,7 @@
           </div>
           <div class="control-deck"><button class="coin-button" id="coin-button" aria-label="Meter moneda de 25 pesetas, tecla M"><span class="coin-slot" aria-hidden="true"></span><span>MONEDA <b>25 PTS.</b></span><kbd>M</kbd></button><button class="cashout-button" id="cashout-button" disabled><svg><use href="#i-down"/></svg><span>COBRAR</span><kbd>C</kbd></button><button class="spin-button" id="spin-button" disabled><span>JUGAR</span><small>ESPACIO</small></button></div>
           <div class="cabinet-bottom"><span class="maker-plate">CV / 92<br><small>GIJÓN · ASTURIAS</small></span><div class="coin-tray" id="coin-tray" aria-label="Bandeja de monedas"><div id="tray-coins" aria-hidden="true"></div><span id="tray-label">SU PREMIO, AQUÍ</span></div><span class="lock" aria-hidden="true"></span></div>
+          <div class="bulb-strip bottom-bulbs" id="bottom-bulbs" aria-hidden="true"></div>
         </div>
         <span class="cabinet-screw screw-tl" aria-hidden="true"></span><span class="cabinet-screw screw-tr" aria-hidden="true"></span><span class="cabinet-screw screw-bl" aria-hidden="true"></span><span class="cabinet-screw screw-br" aria-hidden="true"></span>
       </div>

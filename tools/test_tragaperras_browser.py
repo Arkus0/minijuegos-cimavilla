@@ -173,6 +173,33 @@ with sync_playwright() as playwright:
     assert child.evaluate('CimavillaTragaperras.estado().wallet') == 125
     context.close(); print('PASS: contexto del anfitrión y resultado en iframe')
 
+    # Render the actual mixer, including decoded voice assets, without a sound device.
+    context = browser.new_context()
+    page = context.new_page(); page.goto(args.base + '/tragaperras/'); ready(page)
+    async_audio_check = """async (muted) => {
+        const { MachineAudio } = await import('./audio.mjs');
+        const native = window.AudioContext;
+        let offline;
+        window.AudioContext = function() {
+            offline = new OfflineAudioContext(1, 44100 * 4, 44100);
+            offline.resume = async () => {};
+            return offline;
+        };
+        try {
+            const audio = new MachineAudio(); audio.setMuted(muted);
+            await audio.unlock(); audio.win(true);
+            const rendered = await offline.startRendering(), data = rendered.getChannelData(0);
+            let peak = 0, energy = 0;
+            for(const value of data) { peak = Math.max(peak, Math.abs(value)); energy += value * value; }
+            return {peak, rms:Math.sqrt(energy / data.length), voices:audio.samples.size};
+        } finally { window.AudioContext = native; }
+    }"""
+    sound = page.evaluate(async_audio_check, False)
+    assert sound['voices'] == 2 and sound['rms'] > .01 and sound['peak'] < .98, sound
+    silence = page.evaluate(async_audio_check, True)
+    assert silence['peak'] == 0 and silence['rms'] == 0, silence
+    context.close(); print('PASS: mezcla con voces locales, sin saturación y silencio completo')
+
     assert not errors, errors
     browser.close()
     print('Todos los controles de navegador pasan; sin errores de JavaScript.')

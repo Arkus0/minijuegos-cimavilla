@@ -1,6 +1,8 @@
 # Costa Verde 2000
 
-Tragaperras jugable de Cimavilla, 1992. Máquina de chigre con carcasa de latón y granate, cristal ilustrado, rodillos curvos en Canvas y sonido mecánico procedural. Funciona sin dependencias, servicios externos ni pasos de compilación. Los demás minijuegos mantienen su implementación.
+Tragaperras jugable de Cimavilla, 1992. Máquina de chigre con carcasa de latón y granate, cristal ilustrado, rodillos curvos en Canvas y una exageración amable de los reclamos de los 90: 82 bombillas de colores, rótulo de premio gordo, panel luminoso de frases, fanfarrias y lluvia de monedas. Funciona sin dependencias, servicios externos ni pasos de compilación. Los demás minijuegos mantienen su implementación.
+
+El sonido combina foley procedural, campanas con armónicos metálicos, pequeños jingles, motor pulsante, cascada de monedas y dos locuciones originales: «¡Costa Verde! ¿Echamos una?» y «¡Premio! ¡Que suenen esas pesetas!». Las voces se filtran como un pequeño altavoz de máquina. El reclamo sonoro empieza después de una interacción, espera 18 segundos de inactividad y tiene un intervalo mínimo de 26 segundos entre jingles; no interrumpe tiradas ni bonus. El silencio apaga también las voces. La pausa congela el audio, las luces, las partículas y los rodillos.
 
 ## Jugar y probar
 
@@ -56,4 +58,4 @@ La pausa congela rodillos, sonido y presentación. Abrir ayuda o la tabla de pre
 
 ## Recursos
 
-`assets/chigre.webp` y `assets/coast.webp` son ilustraciones creadas para esta versión con generación de imágenes. Los cinco símbolos SVG y el audio procedural se han creado para el minijuego. Las fuentes se sirven localmente: DM Sans, Cormorant Garamond y Barlow Condensed, bajo SIL Open Font License; sus licencias están en `assets/fonts/`.
+`assets/chigre.webp` y `assets/coast.webp` son ilustraciones creadas para esta versión con generación de imágenes. Los símbolos, la ilustración de pesetas y el audio procedural se han creado para el minijuego. Las dos locuciones se generaron para esta versión y se guardan como MP3 locales en `assets/audio/`; al jugar no se contacta con el proveedor. Las fuentes se sirven localmente: DM Sans, Cormorant Garamond y Barlow Condensed, bajo SIL Open Font License; sus licencias están en `assets/fonts/`.
