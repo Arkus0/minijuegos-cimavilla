@@ -2,7 +2,7 @@
 
 Tragaperras jugable de Cimavilla, 1992. Máquina de chigre con carcasa de latón y granate, cristal ilustrado, rodillos curvos en Canvas y una exageración amable de los reclamos de los 90: 82 bombillas de colores, rótulo de premio gordo, panel luminoso de frases, fanfarrias y lluvia de monedas. Funciona sin dependencias, servicios externos ni pasos de compilación. Los demás minijuegos mantienen su implementación.
 
-El sonido combina foley procedural, campanas con armónicos metálicos, pequeños jingles, motor pulsante, cascada de monedas y dos locuciones originales: «¡Costa Verde! ¿Echamos una?» y «¡Premio! ¡Que suenen esas pesetas!». Las voces se filtran como un pequeño altavoz de máquina. El reclamo sonoro empieza después de una interacción, espera 18 segundos de inactividad y tiene un intervalo mínimo de 26 segundos entre jingles; no interrumpe tiradas ni bonus. El silencio apaga también las voces. La pausa congela el audio, las luces, las partículas y los rodillos.
+El sonido combina foley procedural, campanas con armónicos metálicos, pequeños jingles, motor pulsante, cascada de monedas y dos locuciones originales: «¡Costa Verde! ¿Echamos una?» y «¡Premio! ¡Que suenen esas pesetas!». Las voces se filtran como un pequeño altavoz de máquina y se cargan en segundo plano; su descarga no bloquea una tirada y las locuciones atrasadas se descartan. El reclamo sonoro empieza después de una interacción, espera 18 segundos de inactividad y tiene un intervalo mínimo de 26 segundos entre jingles; no interrumpe tiradas ni bonus. El silencio apaga también las voces. La pausa congela el audio, las luces, las partículas y los rodillos.
 
 ## Jugar y probar
 

@@ -176,9 +176,11 @@ with sync_playwright() as playwright:
     # Render the actual mixer, including decoded voice assets, without a sound device.
     context = browser.new_context()
     page = context.new_page(); page.goto(args.base + '/tragaperras/'); ready(page)
-    async_audio_check = """async (muted) => {
+    async_audio_check = """async (mode) => {
         const { MachineAudio } = await import('./audio.mjs');
-        const native = window.AudioContext;
+        const native = window.AudioContext, nativeFetch = window.fetch;
+        const slow = mode === 'slow';
+        if(slow) window.fetch = () => new Promise(() => {});
         let offline;
         window.AudioContext = function() {
             offline = new OfflineAudioContext(1, 44100 * 4, 44100);
@@ -186,19 +188,26 @@ with sync_playwright() as playwright:
             return offline;
         };
         try {
-            const audio = new MachineAudio(); audio.setMuted(muted);
-            await audio.unlock(); audio.win(true);
+            const audio = new MachineAudio(); audio.setMuted(mode === true);
+            const unblocked = await Promise.race([
+                audio.unlock().then(() => true), new Promise(resolve => setTimeout(() => resolve(false), 300))
+            ]);
+            if(!unblocked) return {blocked:true};
+            if(audio.sampleReady && !slow) await audio.sampleReady;
+            audio.win(true);
             const rendered = await offline.startRendering(), data = rendered.getChannelData(0);
             let peak = 0, energy = 0;
             for(const value of data) { peak = Math.max(peak, Math.abs(value)); energy += value * value; }
             return {peak, rms:Math.sqrt(energy / data.length), voices:audio.samples.size};
-        } finally { window.AudioContext = native; }
+        } finally { window.AudioContext = native; window.fetch = nativeFetch; }
     }"""
     sound = page.evaluate(async_audio_check, False)
     assert sound['voices'] == 2 and sound['rms'] > .01 and sound['peak'] < .98, sound
     silence = page.evaluate(async_audio_check, True)
     assert silence['peak'] == 0 and silence['rms'] == 0, silence
-    context.close(); print('PASS: mezcla con voces locales, sin saturación y silencio completo')
+    slow = page.evaluate(async_audio_check, 'slow')
+    assert not slow.get('blocked') and slow['voices'] == 0 and slow['rms'] > .01, slow
+    context.close(); print('PASS: voces locales, sin saturación, silencio completo y sonido sin bloquear con muestras lentas')
 
     assert not errors, errors
     browser.close()

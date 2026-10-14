@@ -3,6 +3,7 @@ export class MachineAudio {
   constructor() {
     this.muted = false; this.context = null; this.motor = null; this.volume = .42;
     this.samples = new Map(); this.voice = null; this.welcomed = false; this.lastAttract = 0;
+    this.voiceTicket = 0;
   }
 
   async unlock() {
@@ -29,7 +30,7 @@ export class MachineAudio {
           } catch { /* The jingles still work if a voice sample cannot load. */ }
         }));
       }
-      if (this.sampleReady) await this.sampleReady;
+      // Optional samples load in the background; a slow download must never stall play.
     } catch { /* Audio is optional in embedded browsers. */ }
   }
 
@@ -103,21 +104,28 @@ export class MachineAudio {
   }
 
   playVoice(name, delay = 0) {
-    if (this.muted || !this.context || !this.samples.has(name)) return;
+    if (this.muted || !this.context) return;
     this.stopVoice();
-    const source = this.context.createBufferSource(), high = this.context.createBiquadFilter();
-    const low = this.context.createBiquadFilter(), gain = this.context.createGain();
-    source.buffer = this.samples.get(name);
-    high.type = 'highpass'; high.frequency.value = 290;
-    low.type = 'lowpass'; low.frequency.value = 3800; low.Q.value = .7;
-    gain.gain.value = .7;
-    source.connect(high).connect(low).connect(gain).connect(this.master);
-    this.voice = source;
-    source.onended = () => { if (this.voice === source) this.voice = null; };
-    source.start(this.context.currentTime + delay);
+    const ticket = this.voiceTicket, expiresAt = performance.now() + 2000;
+    const play = () => {
+      if (ticket !== this.voiceTicket || this.muted || !this.samples.has(name) || performance.now() > expiresAt) return;
+      const source = this.context.createBufferSource(), high = this.context.createBiquadFilter();
+      const low = this.context.createBiquadFilter(), gain = this.context.createGain();
+      source.buffer = this.samples.get(name);
+      high.type = 'highpass'; high.frequency.value = 290;
+      low.type = 'lowpass'; low.frequency.value = 3800; low.Q.value = .7;
+      gain.gain.value = .7;
+      source.connect(high).connect(low).connect(gain).connect(this.master);
+      this.voice = source;
+      source.onended = () => { if (this.voice === source) this.voice = null; };
+      source.start(this.context.currentTime + delay);
+    };
+    if (this.samples.has(name)) play();
+    else if (this.sampleReady) this.sampleReady.then(play);
   }
 
   stopVoice() {
+    this.voiceTicket++;
     if (!this.voice) return;
     try { this.voice.stop(); } catch { /* The sample may already have ended. */ }
     this.voice = null;
