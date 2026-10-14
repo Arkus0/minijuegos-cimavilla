@@ -1,8 +1,8 @@
-# Siguiente revamp propuesto: Burbujas del Muelle
+# Recreativas: Bubble Parade y próximos proyectos
 
-La próxima prioridad son las **recreativas**. La propuesta es rehacer **Burbujas**, crear después un **beat ’em up**, y dejar **Pong** para el siguiente turno. Escanciar sidra pasa a una ampliación futura.
+La prioridad son las **recreativas**. Burbujas ya tiene una nueva versión jugable como **Bubble Parade**: personajes propios, seis fases en tres mundos, cadenas, cooperativo y música FM. La siguiente propuesta es crear un **beat ’em up**, y después rehacer **Pong**. Escanciar sidra queda para una ampliación futura.
 
-Burbujas ya tiene captura de enemigos, salto, dos jugadores locales y récords. Esa base permite concentrar el siguiente trabajo en personajes, animaciones, escenarios variados y una respuesta visual y sonora que invite a repetir. El beat ’em up será la nueva recreativa protagonista; su [brief inicial](BRIEF_BEAT_EM_UP.md) define el primer tramo que hay que validar.
+La [guía de Bubble Parade](../burbujas/README.md) recoge la entrega y sus pruebas. Su [kit para Unity 6 URP](../burbujas/UNITY_PORT.md) prepara recursos y datos; todavía debe implementarse el motor C# y validarse la escena nativa. El beat ’em up será la nueva recreativa protagonista; su [brief inicial](BRIEF_BEAT_EM_UP.md) define el primer tramo que hay que validar.
 
 ## Criterio para todas las recreativas
 
@@ -16,17 +16,17 @@ Los nombres actuales del catálogo permiten identificar los prototipos. En el re
 
 | Recreativa | Base actual | Prioridad propuesta |
 |---|---|---|
-| Burbujas / Burbujas del Muelle | Plataformas, captura, enemigos, dos jugadores y récords. Al pasar de nivel se mantiene el mapa y crecen el número y la velocidad de enemigos. Movimiento y tiempos dependen de frames. | **Siguiente revamp.** La mecánica ya admite una partida completa y tiene margen gráfico y jugable claro. |
-| Beat ’em up | Nueva recreativa deseada; necesita combate, personajes, enemigos y escenarios. | **Segundo.** Crear un juego propio empezando por un tramo de combate muy cuidado. |
+| Bubble Parade / Burbujas | Revamp web jugable: atlas propios, seis distribuciones de plataformas, cuatro arquetipos, cooperativo, cadenas y tiempo fijo. Recursos preparados para Unity. | Revisar esta entrega antes de ampliar o pasar al siguiente proyecto. |
+| Beat ’em up | Nueva recreativa deseada; necesita combate, personajes, enemigos y escenarios. | **Siguiente proyecto.** Crear un juego propio empezando por un tramo de combate muy cuidado. |
 | Pong / Tenis de Chigre | Palas blancas, pelota cuadrada, AI que sigue la pelota y duelo a siete. Movimiento por frame. | **Tercero.** Darle presentación deportiva, rivales y un juego de golpes con más intención. |
 
 Orden: **Tragaperras → Burbujas → Beat ’em up → Pong**. Se desarrolla uno por turno, con una versión jugable revisable antes de ampliar o cambiar de recreativa.
 
 ## Burbujas: dirección artística
 
-Referencia de ritmo y claridad: **Bubble Bobble y Snow Bros**. Un mundo de fantasía colorido, protagonistas pequeños con personalidad y criaturas de siluetas distintas. Se escogerá una identidad comercial propia antes de producir el conjunto de assets.
+Referencia de ritmo y claridad: **Bubble Bobble y Snow Bros**. Bubble Parade es una fantasía colorida de **Kirari Soft**, fabricante ficticio japonés de 1991, con PIP y POP como protagonistas y criaturas de siluetas distintas. Los criterios de diseño siguientes guían su revisión y ampliación.
 
-El primer salto de calidad será gráfico:
+El salto de calidad empieza por la imagen:
 
 1. **Personajes animados:** espera con personalidad, carrera, anticipación del salto, disparo, daño y celebración. Proporciones y dirección de mirada legibles durante la acción.
 2. **Burbujas:** volumen, reflejo, deformación al atrapar, enemigo que forcejea, aviso antes de escapar y estallido que confirme el acierto.
@@ -39,17 +39,17 @@ El color y la luz ayudan a localizar al jugador, enemigos libres y burbujas a pu
 
 El ciclo central seguirá siendo **moverse → atrapar → reunir burbujas → reventarlas → recoger premio**. La puntuación premiará preparar cadenas y resolver grupos, con contador de combo, notas ascendentes y un breve respiro al limpiar la sala.
 
-Las fases tendrán distribuciones y encuentros distintos. Los enemigos necesitarán comportamientos reconocibles: uno que patrulla, otro que salta hacia plataformas y otro que obliga a cambiar de altura. La dificultad se apoya en esos encuentros y en la geometría.
+Las seis fases tienen distribuciones y encuentros distintos. Los enemigos tienen comportamientos reconocibles: setas que patrullan, saltadores, murciélagos aéreos y rotores que anuncian su carga. La dificultad se apoya en esos encuentros y en la geometría.
 
 El cooperativo conserva su sencillez. Ambos jugadores deben distinguirse con facilidad; capturar para que el compañero complete una cadena tiene que resultar útil. Daño, vidas, escape y fin de fase se entienden durante la acción.
 
 En sonido: tema de recreativa con variantes, disparo suave, captura reconocible, estallido contundente, escalada de notas del combo y cierre de fase. La mezcla debe soportar muchos eventos a la vez y ofrecer suficiente variedad para partidas repetidas.
 
-## Primera entrega revisable
+## Entrega revisable de Bubble Parade
 
-Una fase completa con el acabado visual objetivo, dos tipos de enemigo, uno y dos jugadores, cadenas de burbujas, premios, daño/vidas, pausa y fin de partida. Incluirá la presentación de la siguiente fase para comprobar que el formato admite progresión.
+La versión web incluye **seis fases en tres mundos**, cuatro tipos de enemigo, uno y dos jugadores, cadenas de burbujas, premios, daño/vidas, pausa y fin de partida. La presentación y el sonido comparten la identidad de Kirari Soft y sus dos protagonistas.
 
-Antes de producir muchas fases, la muestra debe cumplir:
+Para revisar esta entrega y decidir futuras ampliaciones:
 
 - Personaje, plataforma, amenaza y burbuja capturada se identifican inmediatamente.
 - Capturar y reventar se sienten bien; una cadena resulta claramente más satisfactoria.
@@ -60,6 +60,6 @@ Antes de producir muchas fases, la muestra debe cumplir:
 
 ## Continuidad con Unity 6 URP
 
-Las reglas se separarán de render, efectos y entrada. El anfitrión aporta contexto y recibe el resultado mediante `IMinijuego`; créditos, clasificación y guardado de la visita se integran con ese contrato. El movimiento no depende de `requestAnimationFrame` ni de la tasa de refresco.
+Las reglas web están separadas de render, efectos y entrada. El anfitrión aporta contexto y recibe el resultado una vez; el futuro motor C# adoptará `IMinijuego`. Créditos, clasificación y guardado siguen ese contrato. El movimiento no depende de `requestAnimationFrame` ni de la tasa de refresco.
 
 Dirección de arte y animaciones se validan antes de producir muchas fases. Mueble, juego e interfaz comparten esa dirección para funcionar como recreativa instalada en Cimavilla y como juego independiente.
