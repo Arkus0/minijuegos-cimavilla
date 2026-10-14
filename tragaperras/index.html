@@ -1,45 +1,83 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Costa Verde 2000</title>
-<style>
-body{margin:0;background:#1a0f08;color:#fff;font-family:Arial Black,Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
-#m{background:linear-gradient(#b30000,#600);border:8px solid #d4a017;border-radius:24px;padding:20px;width:560px;box-shadow:0 0 40px #f60}
-h1{text-align:center;margin:0 0 8px;color:#ffeb3b;text-shadow:0 0 8px #f00;letter-spacing:3px}
-#lights{display:flex;justify-content:space-between;margin-bottom:10px}.l{width:16px;height:16px;border-radius:50%;background:#430}.l.on{background:#ff0;box-shadow:0 0 10px #ff0}
-#reels{display:flex;gap:10px;justify-content:center;background:#000;padding:12px;border-radius:10px}
-.r{width:140px;height:140px;background:#fff;color:#000;font-size:80px;display:flex;align-items:center;justify-content:center;border-radius:8px;position:relative}
-.r.held::after{content:"RETENIDO";position:absolute;bottom:2px;font-size:14px;color:#c00}
-#info{display:flex;justify-content:space-between;margin:12px 0;font-size:20px}.led{background:#000;color:#f33;padding:4px 10px;font-family:monospace;font-size:24px;border-radius:4px}
-#msg{text-align:center;height:28px;color:#ffeb3b;font-size:20px}
-.b{display:flex;gap:8px;justify-content:center;margin-top:8px}button{font:inherit;font-size:16px;padding:10px 14px;border-radius:8px;border:3px solid #d4a017;background:#222;color:#fff;cursor:pointer}button:disabled{opacity:.35}
-#tabla{font-size:13px;text-align:center;margin-top:10px;color:#fdd}
-</style></head><body><div id="m">
-<h1>COSTA VERDE 2000</h1><div id="lights"></div>
-<div id="reels"><div class="r"></div><div class="r"></div><div class="r"></div></div>
-<div id="info"><span>CRÉDITOS <span class="led" id="cr">0</span></span><span>PREMIO <span class="led" id="pr">0</span></span></div>
-<div id="msg">Mete un duro (M)</div>
-<div class="b"><button id="coin">Moneda 25 pts [M]</button><button id="spin">Jugar [Espacio]</button><button id="cobrar">Cobrar [C]</button></div>
-<div class="b"><button class="act" data-i="0">1 [A]</button><button class="act" data-i="1">2 [S]</button><button class="act" data-i="2">3 [D]</button></div>
-<div id="tabla">🔔🔔🔔 ×100 · 7️⃣7️⃣7️⃣ ×50 · 🍉🍉🍉 ×20 · 🍋🍋🍋 ×10 · 🍒🍒🍒 ×5 · 🍒🍒 ×2<br>A/S/D: retener (antes de tirar) o avanzar un paso (tras perder)</div></div>
-<script>
-const S=["🍒","🍋","🍉","7️⃣","🔔"],W=[8,6,4,2,1],PAY={"🔔":100,"7️⃣":50,"🍉":20,"🍋":10,"🍒":5};
-const bag=S.flatMap((s,i)=>Array(W[i]).fill(s)),R=[...document.querySelectorAll(".r")],$=id=>document.getElementById(id);
-let cr=0,pr=0,cur=["🍒","🍋","🍉"],held=[0,0,0],mode="idle",nudges=0,busy=0,acx;
-for(let i=0;i<20;i++)$("lights").innerHTML+='<div class="l"></div>';const L=[...document.querySelectorAll(".l")];
-function beep(f,d=.08,t="square"){acx=acx||new AudioContext();const o=acx.createOscillator(),g=acx.createGain();o.type=t;o.frequency.value=f;g.gain.value=.08;o.connect(g).connect(acx.destination);o.start();o.stop(acx.currentTime+d)}
-let tick=0;setInterval(()=>{tick++;L.forEach((l,i)=>l.classList.toggle("on",mode=="win"?tick%2==i%2:(i+tick)%5==0))},mode=="win"?100:180);
-function draw(){R.forEach((r,i)=>{r.textContent=cur[i];r.classList.toggle("held",!!held[i])});$("cr").textContent=cr;$("pr").textContent=pr;
-$("spin").disabled=busy||cr<1;$("cobrar").disabled=busy||pr<1;document.querySelectorAll(".act").forEach((b,i)=>{b.disabled=busy||!(mode=="hold"||(mode=="nudge"&&nudges>0));b.textContent=(i+1)+(mode=="nudge"?" AVANZAR ":" RETENER ")+"["+"ASD"[i]+"]"})}
-const msg=t=>$("msg").textContent=t,rnd=()=>bag[Math.random()*bag.length|0],nxt=s=>S[(S.indexOf(s)+1)%S.length];
-function score(){const[a,b,c]=cur;if(a==b&&b==c)return PAY[a];if(a=="🍒"&&b=="🍒")return 2;return 0}
-function coin(){cr+=1;beep(1200,.05);beep(1600,.1);if(mode=="idle")msg("¡A jugar!");draw()}
-async function spin(){if(busy||cr<1)return;cr--;busy=1;nudges=0;const wasHold=mode=="hold";if(!wasHold)held=[0,0,0];mode="spin";draw();
-for(let i=0;i<3;i++){if(held[i])continue;const n=12+i*8;for(let k=0;k<n;k++){cur[i]=rnd();R[i].textContent=cur[i];beep(300+k*15,.03);await new Promise(r=>setTimeout(r,40+k*2))}beep(150,.12,"sawtooth")}
-held=[0,0,0];busy=0;resolve(true)}
-function resolve(fresh){const w=score();if(w){pr+=w;mode="win";msg("¡PREMIO! +"+w);fanfare()}else if(fresh){const r=Math.random();
-if(r<.25){mode="nudge";nudges=1+(Math.random()*3|0);msg("¡AVANCES! Tienes "+nudges)}else if(r<.5){mode="hold";msg("¡RETENCIONES! Elige y juega")}else{mode="idle";msg(["Casi...","¡Uy, por poco!","Otra y la sacas"][Math.random()*3|0])}}else if(nudges<1){mode="idle";msg("Sin suerte")}draw()}
-async function fanfare(){busy=1;draw();for(const f of [523,659,784,1047,784,1047])beep(f,.12),await new Promise(r=>setTimeout(r,120));busy=0;mode="idle";draw()}
-function act(i){if(busy)return;if(mode=="hold"){held[i]^=1;beep(900);draw()}else if(mode=="nudge"&&nudges>0){cur[i]=nxt(cur[i]);nudges--;beep(500);msg("Avances: "+nudges);resolve(false)}}
-function cobrar(){if(!pr||busy)return;let n=pr;pr=0;msg("Cobrando "+n+" créditos ("+n*25+" pts)");(async()=>{for(let i=0;i<Math.min(n,30);i++)beep(1500,.04),await new Promise(r=>setTimeout(r,60))})();draw()}
-$("coin").onclick=coin;$("spin").onclick=spin;$("cobrar").onclick=cobrar;document.querySelectorAll(".act").forEach(b=>b.onclick=()=>act(+b.dataset.i));
-onkeydown=e=>{const k=e.key.toLowerCase();if(k=="m")coin();else if(k==" "){e.preventDefault();spin()}else if(k=="c")cobrar();else if("asd".includes(k)&&k)act("asd".indexOf(k))};
-draw();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a17">
+  <meta name="description" content="Una noche en Cimavilla, 1992. Costa Verde 2000: tragaperras de chigre con rodillos mecánicos, retenciones y avances. Solo pesetas virtuales.">
+  <title>Costa Verde 2000 · Cimavilla 1992</title>
+  <link rel="preload" href="assets/fonts/cormorant-garamond-italic-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+  <svg class="icon-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 5-5 4H3v6h3l5 4V5Z"/><path class="sound-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-off" d="m16 9 6 6m0-6-6 6"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-1 .4-1 1-1 2M12 16h.01"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="5"/><path d="M12 9v6m-2-1 2 1 2-1"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v15m-6-6 6 6 6-6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1 7M4 4v6h6"/></symbol>
+  </defs></svg>
+  <div class="bar-environment" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="wordmark" href="../index.html" id="exit-link" aria-label="Volver a los minijuegos y guardar el resultado"><span class="brand-mark">C<span>·</span></span><span class="brand-name">CIMAVILLA<span>HISTORIAS DE BARRIO · 1992</span></span></a>
+    <span class="header-location"><i></i> EL RINCÓN DEL AZAR</span>
+    <nav aria-label="Opciones del minijuego"><button class="text-button sound-button" id="sound-button" aria-label="Activar sonido" aria-pressed="false"><svg><use href="#i-sound"/></svg><span id="sound-label">SONIDO</span></button><button class="text-button" id="help-button"><svg><use href="#i-help"/></svg><span>CÓMO JUGAR</span></button></nav>
+  </header>
+  <main class="game-layout">
+    <aside class="night-story" aria-label="Estado de tu partida">
+      <div class="story-intro"><p class="eyebrow"><span class="small-rule"></span> TRAGAPERRAS DE CHIGRE</p><h1>Una más.<br><em>Y nos vamos.</em></h1><p class="intro-copy">Fuera llueve. Dentro, la noche es joven.<br>Y la Costa Verde todavía tiene algo que decir.</p></div>
+      <div class="pocket"><div><span class="eyebrow">EN TU BOLSILLO</span><p class="wallet-number"><span id="wallet">500</span><span class="currency">pts.</span></p></div><div class="peseta" aria-hidden="true"><span>BANCO DE CIMAVILLA</span><b>25</b><small>PESETAS · 1992</small></div></div>
+      <div class="story-status" aria-live="polite" aria-atomic="true"><span class="status-kicker" id="status-kicker">LA NOCHE EMPIEZA AQUÍ</span><h2 id="status-title">Todo empieza con cinco duros.</h2><p id="status-copy">Mete una moneda de 25 pesetas y deja que los rodillos hagan lo suyo.</p></div>
+      <div class="session-stats"><div><span>PARTIDAS</span><strong id="spin-count">00</strong></div><div><span>MEJOR PREMIO</span><strong><span id="best-win">0</span><small> pts.</small></strong></div></div>
+      <div class="keyboard-note"><kbd>M</kbd><span>mete moneda</span><span class="key-dot">·</span><kbd>␣</kbd><span>juega</span></div>
+      <button class="quiet-link" id="new-night"><svg><use href="#i-reset"/></svg> Empezar otra noche</button>
+    </aside>
+    <section class="machine-area" aria-label="Tragaperras Costa Verde 2000">
+      <div class="machine-shadow" aria-hidden="true"></div>
+      <div class="cabinet" id="cabinet">
+        <div class="cabinet-crown" aria-hidden="true"><span></span><b>RECREATIVOS DEL CANTÁBRICO</b><span></span></div>
+        <div class="machine-face">
+          <div class="backglass"><div class="coast-art" aria-hidden="true"></div><span class="glass-eyebrow">LA FORTUNA DEL CANTÁBRICO</span><h2>Costa Verde</h2><div class="model-number"><span></span><b>2000</b><span></span></div><div class="glass-stars" aria-hidden="true">✦ &nbsp; ✦ &nbsp; ✦</div></div>
+          <div class="bulb-strip" id="top-bulbs" aria-hidden="true"></div>
+          <button class="payout-strip" id="payout-button" aria-label="Consultar tabla de premios">
+            <span class="pay-item"><img src="assets/cherry.svg" alt="Tres cerezas"><b>125</b></span><span class="pay-item"><img src="assets/lemon.svg" alt="Tres limones"><b>250</b></span><span class="pay-item"><img src="assets/watermelon.svg" alt="Tres sandías"><b>500</b></span><span class="pay-item"><img src="assets/seven.svg" alt="Tres sietes"><b>1.250</b></span><span class="pay-item jackpot-pay"><img src="assets/bell.svg" alt="Tres campanas"><b>2.500</b></span><span class="pay-unit">PTS.</span>
+          </button>
+          <div class="reel-surround">
+            <div class="reel-head"><span>TRES IGUALES EN LA LÍNEA</span><span class="two-cherries">2 CEREZAS = 50 PTS.</span></div>
+            <div class="reel-window" id="reel-window" role="img" aria-label="Rodillos: cerezas, limón, siete">
+              <div class="payline-arrow left" aria-hidden="true"></div>
+              <div class="reel" data-reel="0"><canvas aria-hidden="true"></canvas><span class="held-label">RETENIDO</span></div><div class="reel" data-reel="1"><canvas aria-hidden="true"></canvas><span class="held-label">RETENIDO</span></div><div class="reel" data-reel="2"><canvas aria-hidden="true"></canvas><span class="held-label">RETENIDO</span></div>
+              <div class="payline-arrow right" aria-hidden="true"></div><div class="payline" aria-hidden="true"></div><div class="win-flash" id="win-flash" aria-hidden="true"><span id="win-flash-label">¡PREMIO!</span><strong id="win-flash-value">+125 <small>PTS.</small></strong></div>
+            </div>
+            <div class="reel-actions"><button class="hold-button" data-reel-action="0" disabled><span class="hold-lamp"></span><span class="action-label">RETENER</span><kbd>A</kbd></button><button class="hold-button" data-reel-action="1" disabled><span class="hold-lamp"></span><span class="action-label">RETENER</span><kbd>S</kbd></button><button class="hold-button" data-reel-action="2" disabled><span class="hold-lamp"></span><span class="action-label">RETENER</span><kbd>D</kbd></button></div>
+          </div>
+          <div class="dashboard">
+            <div class="meter"><span>CRÉDITO <small>PTS.</small></span><div class="led" id="credit-led"><span aria-hidden="true" class="led-ghost">88888</span><b id="credits">00000</b></div></div>
+            <div class="machine-message"><span class="message-lamp"></span><span id="machine-status">INTRODUZCA MONEDA</span><small id="machine-hint">UNA PARTIDA · 25 PESETAS</small></div>
+            <div class="meter prize-meter"><span>PREMIO <small>PTS.</small></span><div class="led"><span aria-hidden="true" class="led-ghost">88888</span><b id="bank">00000</b></div></div>
+          </div>
+          <div class="control-deck"><button class="coin-button" id="coin-button" aria-label="Meter moneda de 25 pesetas, tecla M"><span class="coin-slot" aria-hidden="true"></span><span>MONEDA <b>25 PTS.</b></span><kbd>M</kbd></button><button class="cashout-button" id="cashout-button" disabled><svg><use href="#i-down"/></svg><span>COBRAR</span><kbd>C</kbd></button><button class="spin-button" id="spin-button" disabled><span>JUGAR</span><small>ESPACIO</small></button></div>
+          <div class="cabinet-bottom"><span class="maker-plate">CV / 92<br><small>GIJÓN · ASTURIAS</small></span><div class="coin-tray" id="coin-tray" aria-label="Bandeja de monedas"><div id="tray-coins" aria-hidden="true"></div><span id="tray-label">SU PREMIO, AQUÍ</span></div><span class="lock" aria-hidden="true"></span></div>
+        </div>
+        <span class="cabinet-screw screw-tl" aria-hidden="true"></span><span class="cabinet-screw screw-tr" aria-hidden="true"></span><span class="cabinet-screw screw-bl" aria-hidden="true"></span><span class="cabinet-screw screw-br" aria-hidden="true"></span>
+      </div>
+      <div class="machine-caption"><span class="caption-line"></span> CINCO DUROS. TRES RODILLOS. TODA LA NOCHE. <span class="caption-line"></span></div>
+    </section>
+  </main>
+  <footer class="site-footer"><a href="../index.html" id="footer-exit"><svg><use href="#i-arrow"/></svg> VOLVER AL BARRIO</a><span>Una pequeña historia de <b>Cimavilla, 1992.</b></span><button class="mobile-new-night" id="mobile-new-night">OTRA NOCHE</button><span class="virtual-note"><i></i> SOLO PESETAS VIRTUALES</span></footer>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="pause-veil" id="pause-veil" hidden><span>UN MOMENTO…</span><p>La máquina te espera.</p><button id="resume-button">CONTINUAR</button></div>
+  <dialog id="help-dialog" class="paper-dialog">
+    <button class="dialog-close" data-close aria-label="Cerrar instrucciones"><svg><use href="#i-close"/></svg></button><span class="eyebrow">COSTA VERDE 2000 · MANUAL DE LA CASA</span><h2>La suerte tiene sus trucos.</h2><p class="dialog-intro">Empiezas con 500 pesetas virtuales. Cada moneda y cada tirada valen 25. El premio se queda en la máquina hasta que cobres.</p>
+    <div class="instruction-list"><div><kbd>M</kbd><p><b>Mete cinco duros.</b><span>Pasa 25 pesetas de tu bolsillo al crédito de la máquina.</span></p></div><div><kbd>␣</kbd><p><b>Deja que ruede.</b><span>Tres símbolos iguales en la línea dan premio. Dos cerezas en los dos primeros rodillos también.</span></p></div><div><span class="multi-key"><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><p><b>Retén o avanza.</b><span>Si se encienden las retenciones, guarda hasta dos rodillos para la siguiente tirada. Los avances gratuitos bajan el siguiente símbolo a la línea; mira arriba antes de elegir.</span></p></div><div><kbd>C</kbd><p><b>El premio, al bolsillo.</b><span>Cobra los premios y el crédito que no hayas jugado. No se pierde al salir ni al recargar.</span></p></div></div>
+    <button class="dialog-primary" data-close>ENTENDIDO. VAMOS A JUGAR.</button><p class="dialog-footnote">También puedes usar todos los botones con ratón o pantalla táctil.</p>
+  </dialog>
+  <dialog id="payout-dialog" class="paper-dialog"><button class="dialog-close" data-close aria-label="Cerrar tabla de premios"><svg><use href="#i-close"/></svg></button><span class="eyebrow">LA TABLA DE LA CASA</span><h2>Si se alinean, son tuyas.</h2><p class="dialog-intro">Premios por una tirada de 25 pesetas. Solo cuenta la línea central.</p><div class="payout-table" id="payout-table"></div><div class="cherry-rule"><img src="assets/cherry.svg" alt=""><img src="assets/cherry.svg" alt=""><span>Dos cerezas a la izquierda</span><b>50 pts.</b></div><button class="dialog-primary" data-close>QUE RUEDEN LOS RODILLOS</button></dialog>
+  <dialog id="new-night-dialog" class="paper-dialog small-dialog"><button class="dialog-close" data-close aria-label="Cancelar"><svg><use href="#i-close"/></svg></button><span class="eyebrow">OTRA NOCHE EN CIMAVILLA</span><h2 id="new-night-title">¿Otra ronda?</h2><p class="dialog-intro" id="new-night-copy">Empezarás una partida nueva con 500 pesetas. Se reiniciarán el bolsillo, los créditos y los premios de esta noche.</p><button class="dialog-primary" id="confirm-new-night">EMPEZAR CON 500 PESETAS</button><button class="dialog-secondary" data-close>SEGUIR ESTA NOCHE</button></dialog>
+  <noscript><p class="noscript-note">Activa JavaScript para jugar a Costa Verde 2000.</p></noscript>
+</body>
+</html>
