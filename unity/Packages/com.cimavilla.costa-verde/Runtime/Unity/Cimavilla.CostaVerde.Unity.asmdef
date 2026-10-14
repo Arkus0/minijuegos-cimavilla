@@ -1,0 +1,6 @@
+{
+  "name": "Cimavilla.CostaVerde.Unity",
+  "rootNamespace": "Cimavilla.Minigames.CostaVerde",
+  "references": ["Cimavilla.CostaVerde.Core", "Unity.InputSystem", "UnityEngine.UI"],
+  "autoReferenced": true
+}

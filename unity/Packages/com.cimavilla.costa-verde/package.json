@@ -1,0 +1,13 @@
+{
+  "name": "com.cimavilla.costa-verde",
+  "version": "0.1.0",
+  "displayName": "Cimavilla · Costa Verde 2000",
+  "description": "Base nativa de la tragaperras de Cimavilla 1992: lógica reproducible, Input System, presentación 2.5D y generador de escena de prueba para Unity 6 URP.",
+  "unity": "6000.0",
+  "dependencies": {
+    "com.unity.inputsystem": "1.11.2",
+    "com.unity.ugui": "2.0.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "keywords": ["cimavilla", "minigame", "slots"]
+}

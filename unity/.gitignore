@@ -1,0 +1,6 @@
+CoreChecks/bin/
+CoreChecks/obj/
+**/Library/
+**/Temp/
+**/Logs/
+**/UserSettings/

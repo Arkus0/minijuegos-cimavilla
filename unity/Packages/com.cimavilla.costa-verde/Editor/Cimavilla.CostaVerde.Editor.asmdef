@@ -1,0 +1,6 @@
+{
+  "name": "Cimavilla.CostaVerde.Editor",
+  "references": ["Cimavilla.CostaVerde.Core", "Cimavilla.CostaVerde.Unity", "Unity.InputSystem", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"],
+  "autoReferenced": true
+}
