@@ -16,9 +16,9 @@ Lema del proyecto (va en todo prompt de imagen): **"Shenmue asturiano con el niv
 | Ventana / hueco de galería | ~12–16 × 18–24 px | |
 
 ## 2. Proyección y luz (una sola gramática)
-- **3/4 frontal** (Eastward / Zelda ALttP / Alundra): el suelo se ve desde arriba y las fachadas en alzado frontal, paralelas a la pantalla. **Nada de puntos de fuga ni perspectiva cónica.** Tejados y aleros escorzados, vistos un poco desde arriba.
-- Laterales de edificios, si aparecen, en oblicuo simple y con el mismo ángulo en todas las piezas.
-- **Luz desde arriba a la izquierda.** Sombras proyectadas hacia abajo a la derecha, en capa aparte cuando sea posible.
+- **3/4 frontal** (Eastward / Zelda ALttP / Alundra) con la **cámara siempre mirando al norte**: el suelo y los tejados se ven desde arriba, y de cada edificio solo su **fachada sur**, en alzado frontal paralelo a la pantalla. **Nada de puntos de fuga ni perspectiva cónica.**
+- Las fachadas norte, este y oeste no se dibujan: las tapa el tejado o quedan de canto (ver §10).
+- **Luz cenital/frontal** (decisión del 14-10-2026, sustituye a «arriba-izquierda»): permite **voltear** laterales, esquinas, fachadas y props. Sombras de contacto debajo de cada objeto, sin dirección lateral.
 
 ## 3. Formato de fichero
 - **PNG RGBA**, con **1 píxel de arte = 1 píxel de imagen**. Si el asset viene ampliado (p. ej. ×4 desde una IA), indica el factor. Si no lo sabes, lo detecto yo, pero hay que limpiarlo.
@@ -61,6 +61,16 @@ Si llega un PNG completo, lo recorto yo. Si se puede, la anchura de la fachada v
 | `overhead` | objetos | Aleros y tejados que tapan al jugador; se atenúan cuando hay alguien detrás |
 | `lights` | objetos | Fuentes de luz (`radius`, `color`, `flicker`) |
 | `collision` | objetos | Rectángulos de colisión (`collides=true`) |
+
+## 10. Mapa: convención de bandas
+Canon de encargos y planos: `Arkus0/cimavilla-2d/encargos/` (02-MAPA.md, con el esquema del barrio y el plano de la microcalle; copias en `docs/img/`).
+| Banda (de norte a sur) | Tiles | Contenido |
+|---|---|---|
+| Alero de la manzana | 3 | Tejado que tapa la acera sur de la calle de arriba (capa `overhead`, se aclara alrededor del jugador) |
+| Tejado visible | 4 (+3 si la fachada es PB+1) | Tileset de teja árabe (capa `roofs-back`) |
+| Fachada sur | 11 (PB+2 = 176 px) / 8 (PB+1 = 128 px) | Macro-sprite en `walls` |
+| Calle | 11 | Acera 2 + bordillo 1 + calzada 7 + bordillo 1 |
+Periodo calle + manzana = 29 tiles (464 px). Las callejas norte-sur cortan las manzanas: suelo de escalera y cantos de tejado, sin paredes laterales visibles. Regenerar planos: `python3 tools/render-plan.py --plano --out docs/img/microcalle.png` y `python3 tools/render-barrio.py`.
 
 ## 9. Procedencia y licencia (obligatorio)
 Junto a cada entrega, en el mensaje del commit o en un `ORIGEN.md`: **herramienta o autor, fecha y licencia o condiciones de uso**. Si es IA, añade el prompt. No se aceptan gráficos extraídos, calcados ni retocados de Eastward, Alundra, SEGA ni ningún juego comercial. El manifest (`assets/manifest.json`) registra todo esto.

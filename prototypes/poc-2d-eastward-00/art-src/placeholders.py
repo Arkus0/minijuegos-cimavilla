@@ -96,6 +96,10 @@ MATERIAL = {
 }
 
 
+ROOF = {'campo': (150, 78, 60, 255), 'cumbrera': (120, 60, 48, 255), 'borde': (170, 96, 70, 255),
+        'canto': (128, 66, 52, 255), 'esq': (110, 56, 44, 255), 'canalon': (90, 92, 96, 255)}
+
+
 def make_tileset(a):
     w, h = a['size']
     t = a['tile']
@@ -103,8 +107,11 @@ def make_tileset(a):
     for name, idx in a['tiles'].items():
         cx, cy = (idx % a['columns']) * t, (idx // a['columns']) * t
         key = next((k for k in MATERIAL if name.startswith(k)), 'canto')
+        base = MATERIAL[key] if a['id'] != 'tejado' else ROOF.get(name.split('_')[0], (150, 78, 60, 255))
+        if name.startswith('escalon'):
+            base = (150, 144, 132, 255)
         tile = Image.new('RGBA', (t, t))
-        hatch(tile, MATERIAL[key], step=5 + idx % 3)
+        hatch(tile, base, step=5 + idx % 3)
         code = ''.join(p[0] for p in name.split('_'))[:3].upper()
         draw_text(tile, (t - text_w(code)) // 2, 5, code, PAPER)
         im.paste(tile, (cx, cy))

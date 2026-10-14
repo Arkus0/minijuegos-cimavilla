@@ -1,5 +1,7 @@
 # Peticiones de assets para el ART-GATE
 
+> **Obsoleto como lista de trabajo:** los encargos vivos están en `Arkus0/cimavilla-2d/encargos/` (01-ART-GATE.md y 02-MAPA.md), que es donde el usuario entrega. Esta copia queda como histórico de la primera petición.
+
 Origen de entrega: `Arkus0/cimavilla-2d` (lo vigilo y voy integrando). Especificación: [ASSET-SPEC.md](ASSET-SPEC.md).
 Estado: ⬜ pendiente · 🟨 recibido, hay que adaptarlo · ✅ integrado · ❌ no apto (con motivo)
 

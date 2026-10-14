@@ -6,6 +6,7 @@ export const TILE = 16;
 export const DEPTH = {
   ground: -1000,
   groundDetail: -999,
+  roofsBack: -500,
   overhead: 100000,
   dusk: 100001,
   lights: 100002,

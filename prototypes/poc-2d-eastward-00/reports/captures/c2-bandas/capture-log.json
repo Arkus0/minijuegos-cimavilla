@@ -1,0 +1,80 @@
+{
+ "label": "c2-bandas",
+ "date": "2026-10-14T19:25:25.452Z",
+ "windows": [
+  {
+   "window": [
+    1280,
+    720
+   ],
+   "zoom": 2,
+   "cssW": 960,
+   "cssH": 540,
+   "x": 160,
+   "y": 90,
+   "integer": true
+  },
+  {
+   "window": [
+    1366,
+    768
+   ],
+   "zoom": 2,
+   "cssW": 960,
+   "cssH": 540,
+   "x": 203,
+   "y": 114,
+   "integer": true
+  },
+  {
+   "window": [
+    1920,
+    1080
+   ],
+   "zoom": 4,
+   "cssW": 1920,
+   "cssH": 1080,
+   "x": 0,
+   "y": 0,
+   "integer": true
+  }
+ ],
+ "seams": [
+  {
+   "camX": 200,
+   "camY": 120,
+   "file": "costura_x200.png",
+   "raw": true
+  },
+  {
+   "camX": 200.25,
+   "camY": 120,
+   "file": "costura_x200_25.png",
+   "raw": true
+  },
+  {
+   "camX": 200.5,
+   "camY": 120,
+   "file": "costura_x200_5.png",
+   "raw": true
+  },
+  {
+   "camX": 200.75,
+   "camY": 120,
+   "file": "costura_x200_75.png",
+   "raw": true
+  },
+  {
+   "camX": 201,
+   "camY": 120,
+   "file": "costura_x201.png",
+   "raw": true
+  }
+ ],
+ "errors": [],
+ "gifFrames": 140,
+ "camDuringWalk": {
+  "frames": 1188,
+  "nonInteger": 0
+ }
+}

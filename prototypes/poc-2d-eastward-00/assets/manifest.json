@@ -1,21 +1,49 @@
 {
   "spec": {
     "tile": 16,
-    "logical": [480, 270],
-    "doc": "docs/ASSET-SPEC.md"
+    "logical": [
+      480,
+      270
+    ],
+    "doc": "docs/ASSET-SPEC.md",
+    "band": {
+      "note": "docs/ASSET-SPEC.md §10",
+      "roof_visible": 64,
+      "facade_pb2": 176,
+      "facade_pb1": 128,
+      "overhead_band": 48,
+      "block_depth_tiles": 12
+    }
   },
   "assets": [
     {
       "id": "suelo",
       "kind": "tileset",
       "file": "tilesets/suelo.png",
-      "size": [128, 64],
+      "size": [
+        128,
+        64
+      ],
       "tile": 16,
       "columns": 8,
       "tiles": {
-        "canto_base": 0, "canto_v1": 1, "canto_v2": 2, "canto_v3": 3, "canto_musgo": 4, "alcantarilla": 5, "charco": 6,
-        "acera_a": 8, "acera_b": 9, "bordillo": 10, "canaleta": 11,
-        "trans_n": 16, "trans_s": 17, "fondo_tejados": 24
+        "canto_base": 0,
+        "canto_v1": 1,
+        "canto_v2": 2,
+        "canto_v3": 3,
+        "canto_musgo": 4,
+        "alcantarilla": 5,
+        "charco": 6,
+        "acera_a": 8,
+        "acera_b": 9,
+        "bordillo": 10,
+        "canaleta": 11,
+        "trans_n": 16,
+        "trans_s": 17,
+        "fondo_tejados": 24,
+        "escalon_a": 12,
+        "escalon_b": 13,
+        "calleja": 14
       },
       "status": "placeholder",
       "request": 1,
@@ -24,25 +52,68 @@
       "reuse": "Tileset base de calles; mantener el mismo layout de índices al sustituirlo"
     },
     {
+      "id": "tejado",
+      "kind": "tileset",
+      "file": "tilesets/tejado.png",
+      "size": [
+        128,
+        48
+      ],
+      "tile": 16,
+      "columns": 8,
+      "tiles": {
+        "campo_a": 0,
+        "campo_b": 1,
+        "campo_c": 2,
+        "cumbrera": 3,
+        "borde_n": 4,
+        "borde_s": 5,
+        "canto_o": 6,
+        "canto_e": 7,
+        "esq_no": 8,
+        "esq_ne": 9,
+        "esq_so": 10,
+        "esq_se": 11,
+        "canalon": 12
+      },
+      "status": "placeholder",
+      "request": "E9",
+      "source": "art-src/placeholders.py (generado)",
+      "license": "propio",
+      "reuse": "Tejados de teja árabe vistos desde arriba: fondo de manzana norte y banda overhead del lado sur"
+    },
+    {
       "id": "fachada_galeria_a",
       "kind": "image",
       "file": "facades/fachada_galeria_a.png",
-      "size": [112, 176],
-      "anchor": [0, 1],
+      "size": [
+        112,
+        176
+      ],
+      "anchor": [
+        0,
+        1
+      ],
       "layer": "walls",
       "status": "placeholder",
       "request": 3,
       "label": "FACHADA GALERIA",
       "source": "art-src/placeholders.py (generado)",
       "license": "propio",
-      "reuse": "Macro-sprite residencial; base alineada a la línea de fachada"
+      "reuse": "Casa PB+2 con galería; se puede voltear (luz cenital)"
     },
     {
       "id": "fachada_chigre",
       "kind": "image",
       "file": "facades/fachada_chigre.png",
-      "size": [112, 176],
-      "anchor": [0, 1],
+      "size": [
+        112,
+        176
+      ],
+      "anchor": [
+        0,
+        1
+      ],
       "layer": "walls",
       "status": "placeholder",
       "request": 4,
@@ -52,53 +123,57 @@
       "reuse": "Fachada singular del chigre; rótulo en capa aparte"
     },
     {
-      "id": "fachada_galeria_b",
+      "id": "fachada_casa_b",
       "kind": "image",
-      "file": "facades/fachada_galeria_b.png",
-      "size": [96, 160],
-      "anchor": [0, 1],
+      "file": "facades/fachada_casa_b.png",
+      "size": [
+        96,
+        128
+      ],
+      "anchor": [
+        0,
+        1
+      ],
       "layer": "walls",
       "status": "placeholder",
       "request": 8,
-      "label": "FACHADA B",
+      "label": "CASA B PB+1",
       "source": "art-src/placeholders.py (generado)",
       "license": "propio",
-      "reuse": "Variante para probar la recombinación"
+      "reuse": "Casa de PB+1; variante para recombinar y voltear"
     },
     {
-      "id": "fachada_medianera",
+      "id": "fachada_estrecha",
       "kind": "image",
-      "file": "facades/fachada_medianera.png",
-      "size": [64, 176],
-      "anchor": [0, 1],
+      "file": "facades/fachada_estrecha.png",
+      "size": [
+        64,
+        176
+      ],
+      "anchor": [
+        0,
+        1
+      ],
       "layer": "walls",
       "status": "placeholder",
       "request": 8,
-      "label": "MEDIANERA",
+      "label": "ESTRECHA",
       "source": "art-src/placeholders.py (generado)",
       "license": "propio",
-      "reuse": "Relleno estrecho entre fachadas"
-    },
-    {
-      "id": "tejado_sur_a",
-      "kind": "image",
-      "file": "facades/tejado_sur_a.png",
-      "size": [160, 64],
-      "anchor": [0, 1],
-      "layer": "overhead",
-      "status": "placeholder",
-      "request": 8,
-      "label": "TEJADO SUR",
-      "source": "art-src/placeholders.py (generado)",
-      "license": "propio",
-      "reuse": "Tejado en primer plano (lado sur de la calle); tapa al jugador"
+      "reuse": "Casa estrecha PB+2 (64 px de ancho)"
     },
     {
       "id": "prop_cajas_sidra",
       "kind": "image",
       "file": "props/prop_cajas_sidra.png",
-      "size": [24, 20],
-      "anchor": [0.5, 1],
+      "size": [
+        24,
+        20
+      ],
+      "anchor": [
+        0.5,
+        1
+      ],
       "layer": "props",
       "collides": true,
       "status": "placeholder",
@@ -112,8 +187,14 @@
       "id": "prop_pipa",
       "kind": "image",
       "file": "props/prop_pipa.png",
-      "size": [18, 26],
-      "anchor": [0.5, 1],
+      "size": [
+        18,
+        26
+      ],
+      "anchor": [
+        0.5,
+        1
+      ],
       "layer": "props",
       "collides": true,
       "status": "placeholder",
@@ -127,8 +208,14 @@
       "id": "prop_banco",
       "kind": "image",
       "file": "props/prop_banco.png",
-      "size": [32, 18],
-      "anchor": [0.5, 1],
+      "size": [
+        32,
+        18
+      ],
+      "anchor": [
+        0.5,
+        1
+      ],
       "layer": "props",
       "collides": true,
       "status": "placeholder",
@@ -142,8 +229,14 @@
       "id": "prop_farol_off",
       "kind": "image",
       "file": "props/prop_farol_off.png",
-      "size": [12, 24],
-      "anchor": [0.5, 1],
+      "size": [
+        12,
+        24
+      ],
+      "anchor": [
+        0.5,
+        1
+      ],
       "layer": "props",
       "status": "placeholder",
       "request": 5,
@@ -156,8 +249,14 @@
       "id": "prop_farol_on",
       "kind": "image",
       "file": "props/prop_farol_on.png",
-      "size": [12, 24],
-      "anchor": [0.5, 1],
+      "size": [
+        12,
+        24
+      ],
+      "anchor": [
+        0.5,
+        1
+      ],
       "layer": "props",
       "status": "placeholder",
       "request": 5,
@@ -170,11 +269,25 @@
       "id": "pj_prueba",
       "kind": "spritesheet",
       "file": "props/pj_prueba.png",
-      "size": [96, 128],
-      "frame": [24, 32],
-      "rows": ["down", "left", "right", "up"],
+      "size": [
+        96,
+        128
+      ],
+      "frame": [
+        24,
+        32
+      ],
+      "rows": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ],
       "framesPerRow": 4,
-      "anchor": [0.5, 1],
+      "anchor": [
+        0.5,
+        1
+      ],
       "status": "placeholder",
       "request": 9,
       "label": "PJ",
@@ -186,8 +299,14 @@
       "id": "fx_glow",
       "kind": "image",
       "file": "props/fx_glow.png",
-      "size": [96, 96],
-      "anchor": [0.5, 0.5],
+      "size": [
+        96,
+        96
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
       "status": "tool",
       "source": "art-src/placeholders.py (generado, cuantizado a 6 niveles)",
       "license": "propio",
@@ -197,8 +316,14 @@
       "id": "fx_gota",
       "kind": "image",
       "file": "props/fx_gota.png",
-      "size": [1, 4],
-      "anchor": [0.5, 0.5],
+      "size": [
+        1,
+        4
+      ],
+      "anchor": [
+        0.5,
+        0.5
+      ],
       "status": "tool",
       "source": "art-src/placeholders.py (generado)",
       "license": "propio",

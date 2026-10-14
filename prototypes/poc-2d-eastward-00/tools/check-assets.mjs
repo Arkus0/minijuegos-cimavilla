@@ -35,7 +35,9 @@ for (const a of man.assets) {
 const mapPath = join(ROOT, 'maps/gate.tmj');
 const map = JSON.parse(readFileSync(mapPath, 'utf8'));
 const gidAsset = new Map();
-let tileCount = 0;
+const FLIPS = 0xe0000000; // bits de volteo/rotación de Tiled
+const clean = (g) => (g & ~FLIPS) >>> 0;
+let maxTileGid = 0;
 for (const ts of map.tilesets) {
   if (ts.image) {
     const p = resolve(dirname(mapPath), ts.image);
@@ -44,7 +46,7 @@ for (const ts of map.tilesets) {
       const [w, h] = pngSize(p);
       if (w !== ts.imagewidth || h !== ts.imageheight) errors.push(`tileset ${ts.name}: ${w}×${h} ≠ mapa ${ts.imagewidth}×${ts.imageheight}`);
     }
-    tileCount = ts.tilecount;
+    maxTileGid = Math.max(maxTileGid, ts.firstgid + ts.tilecount - 1);
   }
   for (const t of ts.tiles ?? []) {
     const p = resolve(dirname(mapPath), t.image);
@@ -57,11 +59,11 @@ for (const ts of map.tilesets) {
 for (const l of map.layers) {
   if (l.type === 'tilelayer') {
     if (l.data.length !== map.width * map.height) errors.push(`capa ${l.name}: tamaño de datos incorrecto`);
-    for (const g of l.data) if (g < 0 || g > tileCount) { errors.push(`capa ${l.name}: gid ${g} fuera del tileset`); break; }
+    for (const g of l.data) if (clean(g) > maxTileGid) { errors.push(`capa ${l.name}: gid ${clean(g)} fuera de los tilesets`); break; }
   } else {
     for (const o of l.objects) {
       if (!o.gid) continue;
-      const a = gidAsset.get(o.gid);
+      const a = gidAsset.get(clean(o.gid));
       if (!a) { errors.push(`capa ${l.name}: objeto ${o.id} con gid desconocido ${o.gid}`); continue; }
       if (o.width !== a.size[0] || o.height !== a.size[1]) errors.push(`capa ${l.name}: ${a.id} con tamaño ${o.width}×${o.height} ≠ ${a.size.join('×')}`);
     }

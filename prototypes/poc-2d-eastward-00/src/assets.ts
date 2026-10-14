@@ -52,8 +52,12 @@ export function prop<T extends string | number | boolean>(o: { properties?: Tile
   return (p ? p.value : fallback) as T | undefined;
 }
 
+const FLIP_BITS = 0xe0000000; // volteo/rotación que Tiled codifica en el gid
+export const isFlippedX = (gid: number) => (gid & 0x80000000) !== 0;
+
 /** gid de un objeto-imagen de Tiled → id de asset del manifest. */
-export function assetForGid(map: TiledMap, gid: number): AssetDef {
+export function assetForGid(map: TiledMap, rawGid: number): AssetDef {
+  const gid = (rawGid & ~FLIP_BITS) >>> 0;
   for (const ts of map.tilesets) {
     const t = ts.tiles?.find((tt) => ts.firstgid + tt.id === gid);
     if (t) {

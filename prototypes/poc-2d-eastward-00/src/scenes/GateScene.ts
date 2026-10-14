@@ -1,5 +1,5 @@
 import * as Phaser from 'phaser';
-import { assetForGid, assetsById, gateMap, prop, type TiledLayer, type TiledObject } from '../assets';
+import { assetForGid, assetsById, gateMap, isFlippedX, prop, type TiledLayer, type TiledObject } from '../assets';
 import { DEPTH, TILE, VH, VW } from '../config';
 
 type Rect = { x: number; y: number; w: number; h: number; name: string };
@@ -21,6 +21,8 @@ export class GateScene extends Phaser.Scene {
   private dir: Dir = 'down';
   private colliders: Rect[] = [];
   private overheads: Phaser.GameObjects.Image[] = [];
+  private overheadTiles?: Phaser.Tilemaps.TilemapLayer;
+  private fadedTiles: Phaser.Tilemaps.Tile[] = [];
   private lightLayer: Phaser.GameObjects.GameObject[] = [];
   private dusk!: Phaser.GameObjects.Rectangle;
   private rain!: Phaser.GameObjects.Particles.ParticleEmitter;
@@ -28,7 +30,12 @@ export class GateScene extends Phaser.Scene {
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private freeCam = false;
+  private freeCamRaw = false;
   private camPos = new Phaser.Math.Vector2();
+  // La cámara sigue a un objetivo de coordenadas ENTERAS: con scroll fraccionario (x.5) las capas
+  // redondean distinto y se desplazan 1 px entre sí (medido en tools/capture.mjs).
+  private camTarget = new Phaser.Math.Vector2();
+  private camSamples: number[][] = [];
   private toggles: Record<string, boolean> = { lights: true, rain: true, grid: false, collision: false, bounds: false, overheadFade: true };
   private mapW = 0;
   private mapH = 0;
@@ -42,9 +49,11 @@ export class GateScene extends Phaser.Scene {
     this.mapH = gateMap.height * TILE;
 
     const map = this.make.tilemap({ key: 'gate' });
-    const ts = map.addTilesetImage('suelo', 'suelo', TILE, TILE, 0, 0)!;
+    const ts = ['suelo', 'tejado'].map((k) => map.addTilesetImage(k, k, TILE, TILE, 0, 0)!);
     map.createLayer('ground', ts, 0, 0)!.setDepth(DEPTH.ground);
     map.createLayer('ground-detail', ts, 0, 0)!.setDepth(DEPTH.groundDetail);
+    map.createLayer('roofs-back', ts, 0, 0)!.setDepth(DEPTH.roofsBack);
+    this.overheadTiles = (map.createLayer('overhead', ts, 0, 0) as Phaser.Tilemaps.TilemapLayer).setDepth(DEPTH.overhead);
 
     for (const layer of gateMap.layers) {
       if (layer.type !== 'objectgroup') continue;
@@ -67,7 +76,7 @@ export class GateScene extends Phaser.Scene {
     const cam = this.cameras.main;
     cam.setBounds(0, 0, this.mapW, this.mapH);
     cam.setRoundPixels(true);
-    cam.startFollow(this.walker, true);
+    cam.startFollow(this.camTarget, false);
 
     const kb = this.input.keyboard!;
     this.cursors = kb.createCursorKeys();
@@ -95,7 +104,7 @@ export class GateScene extends Phaser.Scene {
       }
       if (!o.gid) continue;
       const a = assetForGid(gateMap, o.gid);
-      const img = this.add.image(o.x, o.y, a.id).setOrigin(0, 1);
+      const img = this.add.image(o.x, o.y, a.id).setOrigin(0, 1).setFlipX(isFlippedX(o.gid));
       img.setData('asset', a.id).setData('layer', layer.name);
       if (layer.name === 'overhead') {
         img.setDepth(DEPTH.overhead);
@@ -136,12 +145,13 @@ export class GateScene extends Phaser.Scene {
 
   private setFreeCam(on: boolean) {
     this.freeCam = on;
+    this.freeCamRaw = false;
     const cam = this.cameras.main;
     if (on) {
       cam.stopFollow();
       this.camPos.set(cam.scrollX, cam.scrollY);
     } else {
-      cam.startFollow(this.walker, true);
+      cam.startFollow(this.camTarget, false);
     }
   }
 
@@ -150,7 +160,11 @@ export class GateScene extends Phaser.Scene {
     this.lightLayer.forEach((g) => (g as Phaser.GameObjects.Image).setVisible(this.toggles.lights));
     this.rain.setVisible(this.toggles.rain);
     this.rain.emitting = this.toggles.rain;
-    if (!this.toggles.overheadFade) this.overheads.forEach((o) => o.setAlpha(1));
+    if (!this.toggles.overheadFade) {
+      this.overheads.forEach((o) => o.setAlpha(1));
+      this.fadedTiles.forEach((t) => t.setAlpha(1));
+      this.fadedTiles = [];
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -160,18 +174,23 @@ export class GateScene extends Phaser.Scene {
     const ix = (k.D.isDown || c.right.isDown ? 1 : 0) - (k.A.isDown || c.left.isDown ? 1 : 0);
     const iy = (k.S.isDown || c.down.isDown ? 1 : 0) - (k.W.isDown || c.up.isDown ? 1 : 0);
 
-    if (this.freeCam) {
+    if (this.freeCam && this.freeCamRaw) {
+      // Modo de diagnóstico: cámara fraccionaria fija, sin redondeo.
+    } else if (this.freeCam) {
       const cam = this.cameras.main;
       this.camPos.x = Phaser.Math.Clamp(this.camPos.x + ix * 120 * dt, 0, this.mapW - VW);
       this.camPos.y = Phaser.Math.Clamp(this.camPos.y + iy * 120 * dt, 0, this.mapH - VH);
-      cam.setScroll(this.camPos.x, this.camPos.y);
+      cam.setScroll(Math.round(this.camPos.x), Math.round(this.camPos.y));
       this.walker.anims.play(`pj_prueba-idle-${this.dir}`, true);
     } else {
       this.moveWalker(ix, iy, dt);
     }
 
+    this.camTarget.set(Math.round(this.walker.x), Math.round(this.walker.y - 16));
     this.walker.setDepth(this.walker.y);
     this.updateOverheads();
+    const cam = this.cameras.main;
+    if (this.camSamples.length < 5000) this.camSamples.push([cam.scrollX, cam.scrollY]);
     this.drawDebug();
     this.updateHud();
   }
@@ -207,6 +226,11 @@ export class GateScene extends Phaser.Scene {
       const hit = Phaser.Geom.Intersects.RectangleToRectangle(wb, o.getBounds());
       o.setAlpha(hit ? 0.45 : 1);
     }
+    // Alero en tiles: se aclaran solo los tiles alrededor del caminante (recorte local, no toda la banda).
+    this.fadedTiles.forEach((t) => t.setAlpha(1));
+    this.fadedTiles = this.overheadTiles?.getTilesWithinWorldXY(wb.x - TILE, wb.y - TILE, wb.width + 2 * TILE, wb.height + 2 * TILE, { isNotEmpty: true }) ?? [];
+    if (!this.fadedTiles.some((t) => Phaser.Geom.Intersects.RectangleToRectangle(wb, t.getBounds() as Phaser.Geom.Rectangle))) this.fadedTiles = [];
+    this.fadedTiles.forEach((t) => t.setAlpha(0.45));
   }
 
   private drawDebug() {
@@ -235,6 +259,8 @@ export class GateScene extends Phaser.Scene {
         g.strokeRect(b.x + 0.5, b.y + 0.5, b.width - 1, b.height - 1);
         g.fillStyle(0xffffff, 1).fillRect(img.x - 1, img.y - 1, 3, 3);
       }
+      g.lineStyle(1, 0x40c0ff, 0.9);
+      this.overheadTiles?.forEachTile((t) => { if (t.index >= 0) g.strokeRect(t.pixelX + 0.5, t.pixelY + 0.5, TILE - 1, TILE - 1); });
     }
   }
 
@@ -266,7 +292,9 @@ export class GateScene extends Phaser.Scene {
         zoom: this.scale.zoom,
         placeholders: this.placeholderIds(),
       }),
-      setCam: (x: number, y: number) => { this.setFreeCam(true); this.camPos.set(x, y); this.cameras.main.setScroll(x, y); },
+      setCam: (x: number, y: number) => { this.setFreeCam(true); this.camPos.set(x, y); this.cameras.main.setScroll(Math.round(x), Math.round(y)); },
+      setCamRaw: (x: number, y: number) => { this.setFreeCam(true); this.freeCamRaw = true; this.cameras.main.setScroll(x, y); },
+      camSamples: () => this.camSamples.splice(0),
       setWalker: (x: number, y: number, dir: Dir = 'down') => { this.setFreeCam(false); this.walker.setPosition(x, y); this.dir = dir; },
       toggle: (name: string, on: boolean) => { this.toggles[name] = on; this.applyToggles(); },
       mapSize: () => ({ w: this.mapW, h: this.mapH }),

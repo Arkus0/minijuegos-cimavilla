@@ -29,11 +29,11 @@ python3 tools/build-map.py      # regenera maps/gate.tmj (Tiled JSON 1.10)
 
 ## Arquitectura
 - `assets/manifest.json`: fuente de verdad de cada asset (tamaño, ancla, capa, estado, procedencia, licencia y reutilización). `status: placeholder` significa que **no es arte**: rayado y rotulado.
-- `maps/gate.tmj`: mapa Tiled (capas `ground`, `ground-detail`, `walls`, `props`, `overhead`, `lights`, `collision` y `spawn`). Los objetos son imágenes de una colección de Tiled, así que se pueden abrir y editar en Tiled.
-- `src/`: Phaser 4.2.1 + TypeScript + Vite. Vista lógica de 480×270 con escalado entero, ordenación por la Y de los pies y tejados `overhead` que se atenúan. Luz y orbayu se pueden desactivar.
+- `maps/gate.tmj`: mapa Tiled con la convención de bandas (capas `ground`, `ground-detail`, `roofs-back`, `walls`, `props`, `overhead` en tiles, `lights`, `collision` y `spawn`). Los objetos son imágenes de una colección de Tiled, así que se pueden abrir y editar en Tiled.
+- `src/`: Phaser 4.2.1 + TypeScript + Vite. Vista lógica de 480×270 con escalado entero, ordenación por la Y de los pies cámara en coordenadas enteras, fachadas volteables (bit de volteo de Tiled) y alero `overhead` que se aclara solo alrededor del jugador. Luz y orbayu se pueden desactivar.
 - `art-src/`: scripts reproducibles de arte y adaptación de assets.
-- `tools/`: mapa, verificación y capturas automáticas con Playwright (costuras, escalado y recorrido).
-- `docs/`: [ASSET-SPEC](docs/ASSET-SPEC.md) · [peticiones de assets](docs/PETICIONES-ASSETS.md).
+- `tools/`: mapa, planos (`render-plan.py`, `render-barrio.py`), verificación y capturas automáticas con Playwright (costuras, escalado, cámara entera y recorrido).
+- `docs/`: [ASSET-SPEC](docs/ASSET-SPEC.md) (§10 convención de bandas) · planos en `docs/img/` · encargos vivos en `Arkus0/cimavilla-2d/encargos/`.
 - `reports/`: [00 auditoría](reports/00-capability-audit.md) · capturas en `reports/captures/`.
 
 ## Limitaciones actuales

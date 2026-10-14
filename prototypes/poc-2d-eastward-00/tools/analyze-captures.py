@@ -45,9 +45,15 @@ if frames:
     shutil.rmtree(os.path.join(OUT, '_frames'))
 
 json.dump(res, open(os.path.join(OUT, 'analysis.json'), 'w'), indent=1)
-ok_seams = all(s['bg_pixels'] == 0 and s['identical_to_integer_cam'] for s in res['seams'])
+res['cam_during_walk'] = log.get('camDuringWalk')
+ok_seams = all(s['bg_pixels'] == 0 for s in res['seams'])
+raw_split = [s['camX'] for s in res['seams'] if not s['identical_to_integer_cam']]
+ok_cam = bool(res['cam_during_walk']) and res['cam_during_walk']['nonInteger'] == 0
 ok_windows = all(w['integer'] for w in res['windows'])
-print(f"costuras: {'OK' if ok_seams else 'REVISAR'} · escalado entero: {'OK' if ok_windows else 'REVISAR'} · errores de consola: {len(res['console_errors'])}")
+print(f"costuras (px de fondo): {'OK' if ok_seams else 'REVISAR'} · escalado entero: {'OK' if ok_windows else 'REVISAR'} · "
+      f"cámara entera en el recorrido: {'OK' if ok_cam else 'REVISAR'} {res['cam_during_walk']} · errores de consola: {len(res['console_errors'])}")
+if raw_split:
+    print(f"  diagnóstico: con scroll fraccionario {raw_split} las capas se desalinean 1 px → el juego fuerza scroll entero")
 for s in res['seams']:
     print('  cam x', s['camX'], '→ px de fondo', s['bg_pixels'], '· idéntica a cam entera', s['identical_to_integer_cam'])
 for w in res['windows']:

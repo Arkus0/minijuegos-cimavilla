@@ -51,7 +51,8 @@ const settle = () => sleep(160);
   const { ctx, page } = await open(480, 270);
   const size = await page.evaluate(() => window.__gate.mapSize());
   const spots = [
-    ['oeste', 120, 230], ['chigre', 232, 236], ['centro', 500, 300], ['este', size.w - 120, 240], ['sur_tejados', 300, 400],
+    ['oeste', 120, 290], ['chigre', 232, 296], ['centro', 500, 340], ['este', size.w - 120, 300],
+    ['sur_alero', 150, 450], ['calleja_norte', 400, 150], ['calleja_sur', 304, 455],
   ];
   for (const [name, x, y] of spots) {
     await page.evaluate(([x, y]) => window.__gate.setWalker(x, y, 'down'), [x, y]);
@@ -63,18 +64,19 @@ const settle = () => sleep(160);
     await canvasShot(page, `nativo_${name}_luz.png`);
   }
   // Depuración: rejilla + colisiones + límites, para revisar anclajes y orden.
-  await page.evaluate(() => { window.__gate.setWalker(232, 236, 'down'); window.__gate.toggle('lights', false); ['grid', 'collision', 'bounds'].forEach((k) => window.__gate.toggle(k, true)); });
+  await page.evaluate(() => { window.__gate.setWalker(232, 296, 'down'); window.__gate.toggle('lights', false); ['grid', 'collision', 'bounds'].forEach((k) => window.__gate.toggle(k, true)); });
   await settle();
   await canvasShot(page, 'nativo_debug.png');
   await page.evaluate(() => ['grid', 'collision', 'bounds'].forEach((k) => window.__gate.toggle(k, false)));
 
   // 2) Costuras: cámara en posiciones fraccionarias frente a las enteras.
+  // setCamRaw = diagnóstico sin redondeo (documenta el problema); el juego nunca usa scroll fraccionario.
   for (const x of [200, 200.25, 200.5, 200.75, 201]) {
-    await page.evaluate((x) => window.__gate.setCam(x, 120.5), x);
+    await page.evaluate((x) => window.__gate.setCamRaw(x, 120), x);
     await settle();
     const file = `costura_x${String(x).replace('.', '_')}.png`;
     await canvasShot(page, file);
-    log.seams.push({ camX: x, camY: 120.5, file });
+    log.seams.push({ camX: x, camY: 120, file, raw: true });
   }
   await ctx.close();
 }
@@ -82,7 +84,7 @@ const settle = () => sleep(160);
 // 3) Tres tamaños de ventana (+1366×768, que no admite escala exacta).
 for (const [w, h] of [[1280, 720], [1366, 768], [1920, 1080]]) {
   const { ctx, page } = await open(w, h);
-  await page.evaluate(() => { window.__gate.setWalker(232, 236, 'down'); window.__gate.toggle('rain', false); });
+  await page.evaluate(() => { window.__gate.setWalker(232, 296, 'down'); window.__gate.toggle('rain', false); });
   await settle();
   const info = await page.evaluate(() => {
     const c = document.querySelector('canvas');
@@ -96,9 +98,9 @@ for (const [w, h] of [[1280, 720], [1366, 768], [1920, 1080]]) {
 
 // 4) Recorrido: fotogramas nativos para GIF + vídeo WebM en tiempo real a ×2.
 async function walkRoute(page, onTick) {
-  await page.evaluate(() => { window.__gate.setWalker(40, 230, 'right'); window.__gate.toggle('rain', true); window.__gate.toggle('lights', true); });
+  await page.evaluate(() => { window.__gate.setWalker(40, 290, 'right'); window.__gate.toggle('rain', true); window.__gate.toggle('lights', true); });
   await settle();
-  const legs = [['ArrowRight', 7000], ['ArrowDown', 1500], ['ArrowRight', 3500], ['ArrowDown', 2200], ['ArrowLeft', 2600]];
+  const legs = [['ArrowRight', 5500], ['ArrowUp', 2600], ['ArrowDown', 2600], ['ArrowRight', 2500], ['ArrowDown', 2800], ['ArrowLeft', 3000]];
   for (const [key, ms] of legs) {
     await page.keyboard.down(key);
     const t0 = Date.now();
@@ -109,11 +111,14 @@ async function walkRoute(page, onTick) {
 {
   const { ctx, page } = await open(480, 270);
   let n = 0;
+  await page.evaluate(() => window.__gate.camSamples());
   await walkRoute(page, async () => {
     await page.locator('canvas').screenshot({ path: join(FRAMES, `f${String(n++).padStart(4, '0')}.png`) });
     await sleep(40);
   });
   log.gifFrames = n;
+  const samples = await page.evaluate(() => window.__gate.camSamples());
+  log.camDuringWalk = { frames: samples.length, nonInteger: samples.filter(([x, y]) => !Number.isInteger(x) || !Number.isInteger(y)).length };
   await ctx.close();
 }
 {
