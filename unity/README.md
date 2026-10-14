@@ -12,7 +12,7 @@ La escena empieza con 500 pesetas y semilla 1992. El prefab generado espera el c
 
 El núcleo se ha compilado con .NET 8 y coincide con **601 estados** de la implementación web. También se han probado pausa, cierre durante una tirada pagada, devoluciones y evento único. **No se ha ejecutado Unity Editor en este entorno**: importación, shader URP, escena y controles en Play Mode necesitan la validación descrita en el paquete.
 
-El siguiente minijuego será **Escanciar sidra**. Véase el [brief y orden de trabajo](../docs/SIGUIENTE_MINIJUEGO.md).
+La siguiente prioridad propuesta es **Burbujas**, seguida de un **beat ’em up** y de **Pong**, como recreativas comerciales con universos propios. Véanse el [brief y orden de recreativas](../docs/SIGUIENTE_MINIJUEGO.md) y el [diseño inicial del beat ’em up](../docs/BRIEF_BEAT_EM_UP.md).
 
 ## Reproducir comprobaciones y exportación
 

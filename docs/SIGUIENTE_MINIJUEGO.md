@@ -1,52 +1,65 @@
-# Siguiente revamp: Escanciar sidra
+# Siguiente revamp propuesto: Burbujas del Muelle
 
-Después de integrar Costa Verde 2000, reharemos **Escanciar sidra**. Es la experiencia que mejor convierte Cimavilla en algo propio: reconocer un buen culín por el gesto, el chorro y el resultado en el vaso. Tiene potencial para disfrutarse por sí sola y permite concentrar el salto gráfico en pocos elementos de calidad.
+La próxima prioridad son las **recreativas**. La propuesta es rehacer **Burbujas**, crear después un **beat ’em up**, y dejar **Pong** para el siguiente turno. Escanciar sidra pasa a una ampliación futura.
 
-Esta entrega selecciona y define el siguiente trabajo; el código de sidra conserva su implementación actual.
+Burbujas ya tiene captura de enemigos, salto, dos jugadores locales y récords. Esa base permite concentrar el siguiente trabajo en personajes, animaciones, escenarios variados y una respuesta visual y sonora que invite a repetir. El beat ’em up será la nueva recreativa protagonista; su [brief inicial](BRIEF_BEAT_EM_UP.md) define el primer tramo que hay que validar.
 
-## Elección y orden
+## Criterio para todas las recreativas
 
-| Minijuego | Situación actual | Decisión |
+Las máquinas son **juegos comerciales desarrollados fuera de Cimavilla** y llegados a sus locales. Cada juego tiene título, fabricante ficticio, universo, personajes y música propios. Su presentación debe resultar verosímil para una recreativa de la época.
+
+Cimavilla aporta el lugar físico: salón, chigre, posición de la máquina, desgaste, ambiente y relación con el jugador del juego principal. El contenido de la pantalla puede ser fantasía, ciencia ficción, deporte o acción urbana. El detalle local de una máquina concreta, como Costa Verde, es una decisión de esa máquina.
+
+Los nombres actuales del catálogo permiten identificar los prototipos. En el revamp se revisarán los títulos comerciales y las marquesinas para que la procedencia de cada juego se entienda.
+
+## Orden y motivos
+
+| Recreativa | Base actual | Prioridad propuesta |
 |---|---|---|
-| Escanciar sidra | Botella y brazo básicos; gesto reducido a mover ratón y mantener pulsado. El viento cambia al azar sin una señal previa útil. La puntuación combina cantidad, espuma y derrame pero explica poco la calidad del gesto. | **Siguiente.** Identidad asturiana, interacción táctil y mejora gráfica concentrada. |
-| Burbujas del Muelle | Ya tiene sprites, captura de enemigos, plataformas y dos jugadores. Repetir una misma fase y las reglas de movimiento limitan su recorrido. | Después de sidra. Requiere diseño de fases, enemigos y progresión, además de arte. |
-| Tenis de Chigre / Pong | Palas blancas, pelota cuadrada y AI simple. El movimiento depende del ritmo de frames. | Después de Burbujas. Primero necesita competición y carácter propios. |
+| Burbujas / Burbujas del Muelle | Plataformas, captura, enemigos, dos jugadores y récords. Al pasar de nivel se mantiene el mapa y crecen el número y la velocidad de enemigos. Movimiento y tiempos dependen de frames. | **Siguiente revamp.** La mecánica ya admite una partida completa y tiene margen gráfico y jugable claro. |
+| Beat ’em up | Nueva recreativa deseada; necesita combate, personajes, enemigos y escenarios. | **Segundo.** Crear un juego propio empezando por un tramo de combate muy cuidado. |
+| Pong / Tenis de Chigre | Palas blancas, pelota cuadrada, AI que sigue la pelota y duelo a siete. Movimiento por frame. | **Tercero.** Darle presentación deportiva, rivales y un juego de golpes con más intención. |
 
-Orden: **Tragaperras → Sidra → Burbujas → Tenis de Chigre**. Se cierra y valida cada experiencia antes de empezar la siguiente.
+Orden: **Tragaperras → Burbujas → Beat ’em up → Pong**. Se desarrolla uno por turno, con una versión jugable revisable antes de ampliar o cambiar de recreativa.
 
-## Experiencia deseada
+## Burbujas: dirección artística
 
-Barra de madera oscura, luz ámbar, manos bien animadas, botella verde con reflejos y vaso fino inclinado. El primer culín debe resultar satisfactorio aunque aún no haya clientes ni clasificación. La gracia viene de aprender un gesto real y notar la diferencia entre chorro limpio y sidra desperdiciada.
+Referencia de ritmo y claridad: **Bubble Bobble y Snow Bros**. Un mundo de fantasía colorido, protagonistas pequeños con personalidad y criaturas de siluetas distintas. Se escogerá una identidad comercial propia antes de producir el conjunto de assets.
 
-La referencia Yakuza/Shenmue es la atención al ritual, la respuesta de los objetos y la sensación de jugar dentro de un lugar vivo. El humor sale del chigrero y los pedidos: frases breves sin convertir cada intento en una caricatura.
+El primer salto de calidad será gráfico:
 
-## Primera entrega: un culín excelente
+1. **Personajes animados:** espera con personalidad, carrera, anticipación del salto, disparo, daño y celebración. Proporciones y dirección de mirada legibles durante la acción.
+2. **Burbujas:** volumen, reflejo, deformación al atrapar, enemigo que forcejea, aviso antes de escapar y estallido que confirme el acierto.
+3. **Escenarios:** mundos distintos, como jardines, cavernas de cristal y fábricas fantásticas; planos de fondo, profundidad y luz, con plataformas fáciles de distinguir de la decoración.
+4. **Máquina:** marquesina e ilustraciones propias, botones y palancas, demostración, créditos, clasificación e inicio de uno o dos jugadores. CRT opcional, con intensidad moderada y texto legible.
 
-Una botella, un vaso y un pedido claro. El jugador controla alineación del vaso e inclinación/caudal de la botella. La altura afecta a la aireación y se introduce después de aprender a acertar el chorro. Ratón y mando deben transmitir el mismo gesto.
+El color y la luz ayudan a localizar al jugador, enemigos libres y burbujas a punto de abrirse. La celebración debe dejar visibles plataformas y amenazas activas.
 
-El líquido usa una simulación de juego estable: trayectoria continua, tiempo de vuelo, impacto en el borde, acumulación, espuma y derrame. La imagen acompaña esa simulación con chorro coherente, salpicaduras y refracción aproximada. No hace falta simular físicamente todo el fluido para obtener una buena respuesta.
+## Rehacer el juego, además del aspecto
 
-Cada error tiene una señal antes de penalizar: chorro alejándose, vaso mal inclinado, caudal alto o nivel cercano al pedido. El modo interior inicial no tendrá viento aleatorio. Si después escanciamos fuera, el viento será gradual y visible en ambiente/chorro antes de afectar al resultado.
+El ciclo central seguirá siendo **moverse → atrapar → reunir burbujas → reventarlas → recoger premio**. La puntuación premiará preparar cadenas y resolver grupos, con contador de combo, notas ascendentes y un breve respiro al limpiar la sala.
 
-Al soltar, la botella corta el caudal con una pequeña cola de gotas; el vaso conserva su estado. Se evalúan **cantidad pedida, aireación y limpieza del gesto**. El resumen explica el resultado con una frase breve. La espuma por sí sola no debe premiar un derrame o una espera artificial.
+Las fases tendrán distribuciones y encuentros distintos. Los enemigos necesitarán comportamientos reconocibles: uno que patrulla, otro que salta hacia plataformas y otro que obliga a cambiar de altura. La dificultad se apoya en esos encuentros y en la geometría.
 
-## Prioridad gráfica y sonora
+El cooperativo conserva su sencillez. Ambos jugadores deben distinguirse con facilidad; capturar para que el compañero complete una cadena tiene que resultar útil. Daño, vidas, escape y fin de fase se entienden durante la acción.
 
-1. **Manos, botella y vaso:** siluetas, articulaciones, peso, contacto y reflejos. Cámara cercana y estable que muestre el chorro completo.
-2. **Sidra:** chorro sin saltos, impacto, pequeñas gotas, nivel visible, espuma que nace y se disipa, marcas húmedas en la barra. Las partículas siguen el líquido y no atraviesan el vaso.
-3. **Chigre:** madera gastada, fondo con profundidad y pocos objetos cuidados. La luz guía la atención al gesto.
-4. **Sonido:** levantar botella, líquido variando con caudal/altura, impacto limpio frente a derrame, vaso sobre madera. Ambiente bajo y valoración breve del chigrero, sin repetirse en cada intento.
+En sonido: tema de recreativa con variantes, disparo suave, captura reconocible, estallido contundente, escalada de notas del combo y cierre de fase. La mezcla debe soportar muchos eventos a la vez y ofrecer suficiente variedad para partidas repetidas.
 
-En Unity 6 URP: modelos de manos/botella/vaso, vidrio y líquido con coste controlado; trayectoria independiente de efectos y framerate. Compartir `IMinijuego` y separar reglas/presentación como en Costa Verde. Economía y guardado siguen perteneciendo al anfitrión.
+## Primera entrega revisable
 
-## Criterio para ampliar
+Una fase completa con el acabado visual objetivo, dos tipos de enemigo, uno y dos jugadores, cadenas de burbujas, premios, daño/vidas, pausa y fin de partida. Incluirá la presentación de la siguiente fase para comprobar que el formato admite progresión.
 
-La primera prueba se da por buena cuando:
+Antes de producir muchas fases, la muestra debe cumplir:
 
-- Se entiende el gesto en un intento y se distingue acierto de derrame antes de ver la nota.
-- Intentos iguales producen el mismo resultado a 30, 60 y 120 fps; pausar no crea líquido ni cambia el vaso.
-- Ratón y mando permiten afinar y cortar con comodidad.
-- Un buen culín se ve y se oye mejor que uno malo; la nota coincide con cantidad, aireación y limpieza.
-- Apetece repetir cinco intentos sin cansarse de voces o celebración.
+- Personaje, plataforma, amenaza y burbuja capturada se identifican inmediatamente.
+- Capturar y reventar se sienten bien; una cadena resulta claramente más satisfactoria.
+- Salto, colisiones, escape y puntuación producen el mismo resultado a 30, 60 y 120 fps. La simulación usa pasos fijos y un reloj propio.
+- Pausa y cambio de foco congelan juego, efectos y audio; reanudar no produce un salto de simulación.
+- Teclado y mando permiten jugar con comodidad; el cooperativo se inicia y termina correctamente.
+- Apetece jugar varias partidas para mejorar la marca.
 
-Después: rondas cortas con clientes y cantidades distintas, récord personal, dificultad visible y variantes de botella/vaso. Los pedidos, comentarios y pequeñas recompensas construyen la progresión. Primero se valida el gesto central; después se amplía el local y el metajuego.
+## Continuidad con Unity 6 URP
+
+Las reglas se separarán de render, efectos y entrada. El anfitrión aporta contexto y recibe el resultado mediante `IMinijuego`; créditos, clasificación y guardado de la visita se integran con ese contrato. El movimiento no depende de `requestAnimationFrame` ni de la tasa de refresco.
+
+Dirección de arte y animaciones se validan antes de producir muchas fases. Mueble, juego e interfaz comparten esa dirección para funcionar como recreativa instalada en Cimavilla y como juego independiente.
