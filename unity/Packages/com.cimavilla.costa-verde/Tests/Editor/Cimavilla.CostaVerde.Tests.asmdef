@@ -1,0 +1,7 @@
+{
+  "name": "Cimavilla.CostaVerde.Tests",
+  "references": ["Cimavilla.CostaVerde.Core"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"],
+  "autoReferenced": false
+}

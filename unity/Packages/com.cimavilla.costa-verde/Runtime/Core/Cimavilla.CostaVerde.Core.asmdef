@@ -1,0 +1,7 @@
+{
+  "name": "Cimavilla.CostaVerde.Core",
+  "rootNamespace": "Cimavilla.Minigames",
+  "references": [],
+  "autoReferenced": true,
+  "noEngineReferences": true
+}

@@ -31,6 +31,8 @@ Los cinco premios de tres iguales son 125, 250, 500, 1.250 y 2.500 pesetas. Dos 
 
 ## Integración con el juego principal
 
+Para el port **nativo en Unity 6 URP** ya hay un [paquete UPM con C#, recursos y escena de prueba](../unity/README.md). La API siguiente corresponde a la versión web.
+
 El adaptador ofrece el contrato de `INTERFAZ_UNITY.md` sin mezclar la economía del modo independiente con el contexto del anfitrión:
 
 ```js
