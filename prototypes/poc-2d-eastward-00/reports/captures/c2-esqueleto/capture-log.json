@@ -1,0 +1,71 @@
+{
+ "label": "c2-esqueleto",
+ "date": "2026-10-14T18:26:22.874Z",
+ "windows": [
+  {
+   "window": [
+    1280,
+    720
+   ],
+   "zoom": 2,
+   "cssW": 960,
+   "cssH": 540,
+   "x": 160,
+   "y": 90,
+   "integer": true
+  },
+  {
+   "window": [
+    1366,
+    768
+   ],
+   "zoom": 2,
+   "cssW": 960,
+   "cssH": 540,
+   "x": 203,
+   "y": 114,
+   "integer": true
+  },
+  {
+   "window": [
+    1920,
+    1080
+   ],
+   "zoom": 4,
+   "cssW": 1920,
+   "cssH": 1080,
+   "x": 0,
+   "y": 0,
+   "integer": true
+  }
+ ],
+ "seams": [
+  {
+   "camX": 200,
+   "camY": 120.5,
+   "file": "costura_x200.png"
+  },
+  {
+   "camX": 200.25,
+   "camY": 120.5,
+   "file": "costura_x200_25.png"
+  },
+  {
+   "camX": 200.5,
+   "camY": 120.5,
+   "file": "costura_x200_5.png"
+  },
+  {
+   "camX": 200.75,
+   "camY": 120.5,
+   "file": "costura_x200_75.png"
+  },
+  {
+   "camX": 201,
+   "camY": 120.5,
+   "file": "costura_x201.png"
+  }
+ ],
+ "errors": [],
+ "gifFrames": 123
+}

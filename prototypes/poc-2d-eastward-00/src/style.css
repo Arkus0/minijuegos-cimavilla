@@ -1,0 +1,14 @@
+#gallery { display: none; position: fixed; inset: 0; overflow: auto; background: #1b181f; color: #d9c9a8; font: 13px/1.4 ui-monospace, Menlo, Consolas, monospace; padding: 12px 16px 40px; box-sizing: border-box; z-index: 10; }
+#gallery.open { display: block; }
+#gallery h2 { font-size: 14px; color: #f0c46a; margin: 0 0 12px; }
+#gallery .card { border: 1px solid #3e3846; padding: 8px 10px; margin: 0 0 12px; background: #221f27; }
+#gallery h3 { margin: 0 0 4px; font-size: 13px; color: #e8dcc0; }
+#gallery p { margin: 0 0 8px; color: #9d917f; font-size: 12px; overflow-wrap: anywhere; }
+#gallery .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+#gallery canvas { image-rendering: pixelated; max-width: 100%; }
+#gallery figure { margin: 0; }
+#gallery figcaption { font-size: 11px; color: #9d917f; }
+.badge { font-size: 11px; padding: 0 5px; border-radius: 3px; background: #4a4252; color: #e8dcc0; }
+.badge.placeholder { background: #7a2f3a; color: #ffe6e6; }
+.badge.integrated { background: #2f6a3e; }
+.badge.adapted { background: #6a5a2f; }

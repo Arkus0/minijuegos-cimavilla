@@ -1,0 +1,155 @@
+{
+ "seams": [
+  {
+   "camX": 200,
+   "bg_pixels": 0,
+   "identical_to_integer_cam": [
+    200
+   ]
+  },
+  {
+   "camX": 200.25,
+   "bg_pixels": 0,
+   "identical_to_integer_cam": [
+    200
+   ]
+  },
+  {
+   "camX": 200.5,
+   "bg_pixels": 0,
+   "identical_to_integer_cam": [
+    200
+   ]
+  },
+  {
+   "camX": 200.75,
+   "bg_pixels": 0,
+   "identical_to_integer_cam": [
+    201
+   ]
+  },
+  {
+   "camX": 201,
+   "bg_pixels": 0,
+   "identical_to_integer_cam": [
+    201
+   ]
+  }
+ ],
+ "palette": {
+  "nativo_centro_base.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 20
+  },
+  "nativo_chigre_base.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 22
+  },
+  "nativo_este_base.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 20
+  },
+  "nativo_oeste_base.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 22
+  },
+  "nativo_sur_tejados_base.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 40
+  },
+  "nativo_centro_luz.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 27
+  },
+  "nativo_chigre_luz.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 66
+  },
+  "nativo_este_luz.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 41
+  },
+  "nativo_oeste_luz.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 66
+  },
+  "nativo_sur_tejados_luz.png": {
+   "size": [
+    480,
+    270
+   ],
+   "colors": 69
+  }
+ },
+ "windows": [
+  {
+   "window": [
+    1280,
+    720
+   ],
+   "zoom": 2,
+   "cssW": 960,
+   "cssH": 540,
+   "x": 160,
+   "y": 90,
+   "integer": true
+  },
+  {
+   "window": [
+    1366,
+    768
+   ],
+   "zoom": 2,
+   "cssW": 960,
+   "cssH": 540,
+   "x": 203,
+   "y": 114,
+   "integer": true
+  },
+  {
+   "window": [
+    1920,
+    1080
+   ],
+   "zoom": 4,
+   "cssW": 1920,
+   "cssH": 1080,
+   "x": 0,
+   "y": 0,
+   "integer": true
+  }
+ ],
+ "console_errors": [],
+ "gif": {
+  "file": "recorrido_nativo_x2.gif",
+  "frames": 62,
+  "bytes": 2631437
+ }
+}

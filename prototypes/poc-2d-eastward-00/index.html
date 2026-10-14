@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cimavilla ART-GATE</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #121014; overflow: hidden; }
+  #game { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #game canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+  #hud { position: fixed; left: 8px; top: 6px; font: 12px/1.35 ui-monospace, Menlo, Consolas, monospace; color: #d9c9a8; text-shadow: 0 1px 0 #000; pointer-events: none; white-space: pre; }
+  #hud b { color: #f0c46a; font-weight: normal; }
+  #hud.off { display: none; }
+</style>
+</head>
+<body>
+<div id="game"></div>
+<div id="hud"></div>
+<div id="gallery"></div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

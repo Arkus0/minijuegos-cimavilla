@@ -1,0 +1,23 @@
+{
+  "name": "poc-2d-eastward-00",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:single": "tsc --noEmit && vite build --mode single",
+    "preview": "vite preview --port 4173 --strictPort",
+    "check:assets": "node tools/check-assets.mjs",
+    "map": "python3 tools/build-map.py",
+    "capture": "node tools/capture.mjs"
+  },
+  "dependencies": {
+    "phaser": "4.2.1"
+  },
+  "devDependencies": {
+    "typescript": "6.0.2",
+    "vite": "8.3.4",
+    "vite-plugin-singlefile": "2.3.3"
+  }
+}
